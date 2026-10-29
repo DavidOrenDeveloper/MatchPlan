@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>השוואת תוכניות – גולדין</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/icon.svg">
+<meta name="theme-color" content="#16324f"><link rel="stylesheet" href="css/style.css"></head><body>
+<section id="home">
+<button id="gear" class="gear">⚙ הגדרות</button><h1>השוואת תוכניות חשמל</h1><p class="sub">גולדין מערכות אלקטרומכניות · מחלקת שינויי דיירים</p>
+<div class="grid">
+<label>פרויקט<input id="fp"></label><label>בניין<input id="fb"></label><label>דירה<input id="fa"></label>
+<label>שם גרסה קודמת<input id="fo" value="קודמת"></label><label>שם גרסה חדשה<input id="fn" value="מעודכנת"></label></div>
+<div class="grid two">
+<div class="file"><b>קובץ קודם</b><input type="file" id="fA" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/*"><span id="nmA"></span><label>עמוד<input type="number" id="pgA" min="1" value="1" disabled></label></div>
+<div class="file"><b>קובץ חדש</b><input type="file" id="fB" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/*"><span id="nmB"></span><label>עמוד<input type="number" id="pgB" min="1" value="1" disabled></label></div></div>
+<button id="go" class="pri">התחל השוואה</button><p id="err" class="err"></p>
+<h2>פרויקטים שמורים</h2><div id="plist"></div><label class="imp">ייבוא קובץ פרויקט (.goldin)<input type="file" id="imp" accept=".goldin"></label>
+<footer class="cred">פותח על ידי דוד אורן</footer></section>
+
+<section id="work" hidden>
+<header><button id="back">‹ חזרה</button>
+<div class="seg" id="views"><button data-v="overlay" class="on">חפיפה</button><button data-v="side">זו לצד זו</button><button data-v="flip">מעבר בין גרסאות</button><button data-v="changes">שינויים בלבד</button></div>
+<div class="seg" id="tools"><button data-t="pan" class="on">הזזה</button><button data-t="mark">סימון ידני</button><button data-t="excl">החרגת אזור</button><button data-t="crop">אזור השוואה</button><button data-t="pts">יישור בנקודות</button><button data-t="sym">הגדרת סמל</button><button data-t="cnt">תיקון ספירה</button></div>
+<button id="un">↶ ביטול</button><button id="re">↷ חזרה</button>
+<button id="sv">שמור</button><button id="exp">ייצוא / הדפסה</button><button id="lst">רשימה</button><button id="gear2">⚙</button></header>
+<main><div id="stage"><canvas id="cv"></canvas><div id="q"></div><div id="lgbar" hidden><span id="lgh"></span><button id="lgt">מצב: בחירה</button><button id="lgr">אפס בחירה</button><button id="lgc">סגור מקרא</button></div></div>
+<aside id="side">
+<details><summary>יישור, רגישות וצבעים</summary>
+<div class="ctl"><button id="auto">יישור אוטומטי</button><button id="clrcrop">נקה אזור השוואה</button><span id="qual"></span></div>
+<div class="ctl"><label>קנה מידה %<input type="number" id="as" step="0.1"></label><label>סיבוב °<input type="number" id="ar" step="0.05"></label><label>הזזה X<input type="number" id="ax"></label><label>הזזה Y<input type="number" id="ay"></label></div>
+<div class="ctl"><label>סבילות לקו (פיקסלים) <input type="range" id="tol" min="0" max="8" value="2"><output id="tov">2</output></label><label><input type="checkbox" id="inv">רקע כהה</label></div>
+<div class="ctl"><label>קודמת בלבד<input type="color" id="co" value="#e5484d"><input type="range" id="ao" min="0" max="1" step=".05" value=".9"></label>
+<label>חדשה בלבד<input type="color" id="cn" value="#1f7ae0"><input type="range" id="an" min="0" max="1" step=".05" value=".9"></label>
+<label>משותף<input type="color" id="cm" value="#8a8f98"><input type="range" id="am" min="0" max="1" step=".05" value=".35"></label>
+<label><input type="checkbox" id="keep">צבע מקור למשותף</label><label><input type="checkbox" id="blink">הבהוב אוטומטי</label></div>
+<div class="ctl"><b>החרגות:</b> <span id="exl"></span></div></details>
+<details><summary>סמלים וכמויות (ניסיוני)</summary>
+<div class="ctl"><label>צד<select id="cs"><option value="o">קודמת</option><option value="n">חדשה</option></select></label><label><input type="checkbox" id="shm" checked>הצג סימונים</label><label>גדלים<select id="sr"><option value="1">אותו גודל</option><option value="m" selected>בינוני (±33%)</option><option value="w">רחב (×0.5–×2)</option></select></label><label>סיבוב<select id="ang"><option value="90" selected>90° (קירות)</option><option value="30">כל 30° (תקרה, איטי)</option></select></label><label><input type="checkbox" id="mir" checked>כולל היפוך (מראה)</label><label>רגישות זיהוי<input type="range" id="rec" min=".6" max=".98" step=".01" value=".85"></label><button id="sgm">הצע העברות</button></div>
+<small>"הגדרת סמל": גרור על סמל. "תיקון ספירה": לחיצה על סימון מוחקת או משחזרת, ולחיצה על ריק מוסיפה סמל נבחר לצד שנבחר.</small>
+<div class="ctl"><b>מקרא:</b><input type="file" id="lgf" accept=".pdf,application/pdf,image/*"><label>עמוד<input type="number" id="lgp" min="1" value="1"></label><button id="lgb">פתח מקרא</button></div>
+<small>בלי קובץ: נפתח המקרא מהקובץ הקודם בעמוד שנבחר. עובד גם עם מקרא סרוק או כזה שהטקסט שלו הומר לקווים (קריאת טקסט בעזרת OCR). בכל קופסת מקרא: גרור על עמודת הסמלים, ואז על אזור הטקסט.</small>
+<div id="syml"></div><div id="qty"></div><div id="mvs"></div></details>
+<div class="sum"><span id="sum"></span><select id="flt"><option value="all">הכול</option><option value="todo">טרם נבדק</option><option value="ok">נבדק</option><option value="ask">דורש בירור</option><option value="fp">התראת שווא</option></select></div>
+<div id="list"></div></aside></main></section>
+<div id="prog" hidden><span id="pt"></span><div class="bar"><i id="pb"></i></div><button id="pc">ביטול</button></div>
+<div id="pa"></div>
+<dialog id="ex"><h3>ייצוא והדפסה</h3>
+<label>היקף<select id="xs"><option value="full">גיליון מלא</option><option value="area">אזור השוואה שנבחר</option></select></label>
+<label>סוג PDF<select id="xm"><option value="auto">אוטומטי (וקטורי כשאפשר)</option><option value="vec">וקטורי</option><option value="img">תמונה באיכות גבוהה</option></select></label>
+<label>איכות תמונה<select id="xq"><option value="2">גבוהה (עד ×2, לפי זיכרון)</option><option value="1">כמו במסך</option></select></label>
+<small id="xn"></small>
+<label><input type="checkbox" id="xl" checked>צרף רשימת שינויים</label>
+<label><input type="checkbox" id="xz" checked>שמור מידות גיליון (בתמונה; בוקטורי המידות נשמרות תמיד)</label>
+<div class="ctl"><button id="xpdf" class="pri">PDF</button><button id="xpng">PNG</button><button id="xprt">הדפסה</button><button id="xgo">ייצוא פרויקט .goldin</button><button id="xx">סגור</button></div></dialog>
+<div id="upd" hidden><span>קיימת גרסה חדשה של האפליקציה</span><button id="updgo" class="pri">עדכן</button><button id="updx" aria-label="סגור">✕</button></div>
+<dialog id="set"><h3>הגדרות</h3><p>גרסה מותקנת: <b id="uver">—</b></p>
+<div class="ctl"><button id="chk">בדוק עדכון</button><span id="ust"></span></div>
+<div class="ctl"><button id="hard">ניקוי מטמון וטעינה מחדש</button></div>
+<small>אם העדכון לא נקלט, ניקוי המטמון טוען מחדש את כל הקבצים מהשרת.</small>
+<div class="ctl"><button id="setx">סגור</button></div></dialog>
+<script src="lib/pdf-lib.min.js"></script><script type="module" src="js/app.js"></script></body></html>
