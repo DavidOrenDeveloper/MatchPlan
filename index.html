@@ -49,6 +49,7 @@ input[type=number]{width:72px;padding:6px 8px;border:1px solid var(--ln);border-
 .row button{padding:7px 10px;font-size:13px}.row input[type=range]{flex:1;min-width:80px}
 .row input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--ln);border-radius:8px;background:#fff}
 .sec{font-size:12px;color:var(--mut);margin:0}
+.box{background:var(--card);border-radius:var(--r);padding:12px;box-shadow:0 1px 3px #0f172a14;display:flex;flex-direction:column;gap:8px}.box input[type=range]{width:100%}.box b{color:var(--ink)}
 .exp{display:flex;gap:6px;flex-wrap:wrap}.exp button{flex:1;font-size:13px}
 @media(max-width:800px){.drops{grid-template-columns:1fr}
 #side{position:fixed;inset-inline:0;bottom:0;width:auto;height:52vh;transform:translateY(100%);transition:transform .2s;z-index:6;border-top:1px solid var(--ln);box-shadow:0 -8px 30px #0f172a30}#side.open{transform:none}}
@@ -70,11 +71,18 @@ input[type=number]{width:72px;padding:6px 8px;border:1px solid var(--ln);border-
 <section id="work" hidden>
 <div id="top"><button id="back">‹ חזרה</button><b>השוואת תוכניות</b><button id="sbt">שכבות</button></div>
 <div id="body">
-<div id="stage"><canvas id="ov"></canvas><div id="hint"></div>
+<div id="stage"><canvas id="dc" hidden></canvas><canvas id="ov"></canvas><div id="hint"></div>
 <div id="tb">
 <button data-t="move">הזז תוכנית</button><button data-t="view">הזז תצוגה</button><button data-t="crop">חיתוך</button><button data-t="pts">יישור בנקודות</button>
 <button id="fit">התאם</button><button id="zi">＋</button><button id="zo">－</button><button id="bl">הבהוב</button></div></div>
-<aside id="side"><div id="cards"></div>
+<aside id="side"><section class="box"><label class="row"><input type="checkbox" id="cmp"><b>מצב השוואה – שלושה צבעים</b></label>
+<div id="cmpopts" hidden style="display:flex;flex-direction:column;gap:8px">
+<p class="sec">"רק בקודמת" ו"רק בחדשה" צבועים בצבעי הכרטיסים שלמטה. כאן בוחרים את צבע הקווים הזהים.</p>
+<label class="row">קווים זהים <input type="color" id="cc" value="#9ca3af"></label>
+<label class="sec">סבילות להבדלי עובי / הזזה קטנה: <b id="v1">1.5</b></label><input type="range" id="tol" min="0" max="5" step=".25" value="1.5">
+<label class="sec">סגירת פערים (קו מקוקו מול קו רציף): <b id="v2">3</b></label><input type="range" id="gap" min="0" max="8" step=".5" value="3">
+<label class="sec">התעלם משינויים קטנים מ־: <b id="v3">6</b></label><input type="range" id="mn" min="0" max="30" step="1" value="6">
+</div></section><div id="cards"></div>
 <label class="row"><input type="checkbox" id="tint" checked> צבע לכל תוכנית (כבוי = צבעי המקור)</label>
 <p class="sec">ייצוא (מרונדר מחדש ברזולוציה גבוהה)</p>
 <div class="exp"><button id="e1">PNG גיליון מלא</button><button id="e2">PNG התצוגה הנוכחית</button><button id="e3">הדפסה</button></div>
@@ -86,7 +94,7 @@ import*as pdfjs from'./lib/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc=new URL('./lib/pdf.worker.min.mjs',import.meta.url).href;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],dpr=()=>devicePixelRatio||1,stage=$('#stage');
 const NM=['קודמת','חדשה'],COL=['#e5484d','#1f7ae0'];
-const S={L:[],act:1,tool:'move',k:1,tx:0,ty:0,tint:true,ps:0,pf:[],rb:null};
+const S={L:[],act:1,tool:'move',k:1,tx:0,ty:0,tint:true,ps:0,pf:[],rb:null,cmp:false,dok:false,tol:1.5,gap:3,mn:6,cc:'#9ca3af'};
 const F=[null,null];
 /* ---------- load files ---------- */
 ['A','B'].forEach((n,i)=>$('#f'+n).onchange=async e=>{const f=e.target.files[0];if(!f)return;$('#err').textContent='';
@@ -103,8 +111,8 @@ $('#go').onclick=async()=>{if(!F[0]||!F[1]){$('#err').textContent='יש לבחו
   stage.querySelectorAll('.lc').forEach(c=>c.remove());S.L=[];
   [a,b].forEach((src,i)=>{const cv=document.createElement('canvas');cv.className='lc';stage.insertBefore(cv,$('#ov'));
    S.L.push({src,i,cv,pos:{x:a.w/2,y:a.h/2},rot:0,sx:1,fx:1,fy:1,crop:null,vis:true,col:COL[i],op:.9,tok:0,r:null})});
-  const r=Math.min(a.w/b.w,a.h/b.h);if(Math.abs(r-1)>.02)S.L[1].sx=r;
-  $('#home').hidden=true;$('#work').hidden=false;S.act=1;cards();size();fit();setTool('move')}
+  const r=Math.min(a.w/b.w,a.h/b.h);if(r<.5||r>2)S.L[1].sx=r;
+  $('#home').hidden=true;$('#work').hidden=false;S.act=1;S.cmp=false;S.dok=false;$('#cmp').checked=false;$('#cmpopts').hidden=true;$('#dc').hidden=true;cards();size();fit();setTool('move')}
  catch(x){$('#err').textContent='שגיאה: '+x.message}$('#busy').hidden=true};
 $('#back').onclick=()=>{clearInterval(blk);$('#work').hidden=true;$('#home').hidden=false};
 /* ---------- rendering (re-rendered from the vector at every zoom) ---------- */
@@ -116,11 +124,13 @@ async function draw(l,c,k,tx,ty,d,tint){const x=c.getContext('2d'),m=M(l,k,tx,ty
  if(tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,c.width,c.height)}}
 async function refresh(l){const t=++l.tok;l.task&&l.task.cancel();const d=dpr(),c=document.createElement('canvas'),W=Math.round(stage.clientWidth*d),H=Math.round(stage.clientHeight*d);
  if(!W||!H)return;c.width=W;c.height=H;const k=S.k,tx=S.tx,ty=S.ty,px=l.pos.x,py=l.pos.y;
- try{await draw(l,c,k,tx,ty,d,S.tint)}catch(e){return}
- if(t!==l.tok)return;l.cv.width=W;l.cv.height=H;l.cv.getContext('2d').drawImage(c,0,0);l.r={k,tx,ty,px,py};place(l)}
-function place(l){const r=l.r;l.cv.style.display=l.vis?'':'none';l.cv.style.opacity=l.op;if(!r)return;const f=S.k/r.k;
+ try{await draw(l,c,k,tx,ty,d,false)}catch(e){return}
+ if(t!==l.tok)return;l.cv.width=W;l.cv.height=H;const x=l.cv.getContext('2d');x.drawImage(c,0,0);
+ if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over'}
+ l.raw=c;l.done=t;l.r={k,tx,ty,px,py};place(l);schedDiff()}
+function place(l){const r=l.r;l.cv.style.display=l.vis&&!(S.cmp&&S.dok)?'':'none';l.cv.style.opacity=l.op;if(!r)return;const f=S.k/r.k;
  l.cv.style.transform=`translate(${S.tx-f*r.tx+S.k*(l.pos.x-r.px)}px,${S.ty-f*r.ty+S.k*(l.pos.y-r.py)}px) scale(${f})`}
-let vt;const viewChanged=()=>{S.L.forEach(place);ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),120)};
+let vt;const viewChanged=()=>{S.L.forEach(place);placeD();ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),120)};
 const all=()=>{S.L.forEach(refresh);ov();ui()};
 function size(){const d=dpr(),c=$('#ov');c.width=stage.clientWidth*d;c.height=stage.clientHeight*d;if(S.L.length)all()}
 new ResizeObserver(()=>{if(!$('#work').hidden)size()}).observe(stage);
@@ -145,7 +155,7 @@ stage.onpointermove=e=>{if(!P.has(e.pointerId)||!G)return;const o=P.get(e.pointe
  if(P.size===2){const[a,b]=[...P.values()],d0=dist(a,b);P.set(e.pointerId,n);const[a2,b2]=[...P.values()],d1=dist(a2,b2);S.rb=null;
   S.tx+=dx/2;S.ty+=dy/2;if(d0)zoomAt((a2[0]+b2[0])/2,(a2[1]+b2[1])/2,d1/d0);return}
  P.set(e.pointerId,n);G.mv+=Math.abs(dx)+Math.abs(dy);const t=G.pan||G.pinch?'view':S.tool;
- if(t==='move'){const l=S.L[S.act];l.pos.x+=dx/S.k;l.pos.y+=dy/S.k;G.moved=1;place(l);ov()}
+ if(t==='move'){if(S.cmp&&S.dok){S.dok=false;showMode()}const l=S.L[S.act];l.pos.x+=dx/S.k;l.pos.y+=dy/S.k;G.moved=1;place(l);ov()}
  else if(t==='crop'&&S.rb){S.rb[1]=wp(n);ov()}
  else{S.tx+=dx;S.ty+=dy;viewChanged()}};
 stage.onpointerup=e=>{P.delete(e.pointerId);if(!G||P.size)return;const g=G;G=null;
@@ -168,7 +178,8 @@ const ops={r90:l=>l.rot+=90,r270:l=>l.rot-=90,rp:l=>l.rot+=.1,rm:l=>l.rot-=.1,
  fh:l=>{l.fx*=-1;l.rot=-l.rot},fv:l=>{l.fy*=-1;l.rot=-l.rot},
  L:()=>nudge(-1,0),R:()=>nudge(1,0),U:()=>nudge(0,-1),D:()=>nudge(0,1),
  nocrop:l=>l.crop=null,crop:()=>setTool('crop'),
- rs:l=>{const a=S.L[0].src,s=l.src;l.rot=0;l.fx=l.fy=1;l.crop=null;l.pos={x:a.w/2,y:a.h/2};const r=Math.min(a.w/s.w,a.h/s.h);l.sx=Math.abs(r-1)>.02?r:1}};
+ rs:l=>{const a=S.L[0].src,s=l.src;l.rot=0;l.fx=l.fy=1;l.crop=null;l.pos={x:a.w/2,y:a.h/2};const r=Math.min(a.w/s.w,a.h/s.h);l.sx=r<.5||r>2?r:1},
+ fo:l=>{const o=S.L[1-l.i];l.sx=o.src.w*o.sx/l.src.w;l.pos={x:o.pos.x,y:o.pos.y}}};
 function sel(i){S.act=i;S.pf=[];S.ps=0;ui();setTool(S.tool)}
 function cards(){$('#cards').innerHTML=S.L.map((l,i)=>`<section class="card" data-i="${i}"><header><span class="dot" style="background:${l.col}"></span><b>${NM[i]}</b><span class="fn">${l.src.name}</span><span class="tag">נבחרה</span></header>
 <div class="row"><label><input type="checkbox" data-f="vis" checked>הצג</label><input type="color" data-f="col" value="${l.col}"><input type="range" data-f="op" min=".1" max="1" step=".05" value="${l.op}"></div>
@@ -176,7 +187,7 @@ function cards(){$('#cards').innerHTML=S.L.map((l,i)=>`<section class="card" dat
 <div class="row"><button data-a="r270">⟲ 90°</button><button data-a="r90">⟳ 90°</button><button data-a="fh">↔ היפוך</button><button data-a="fv">↕ היפוך</button></div>
 <div class="row"><label>°<input type="number" step=".1" data-f="rot"></label><label>%<input type="number" step=".1" data-f="sc"></label><button data-a="rm">−0.1°</button><button data-a="rp">+0.1°</button></div>
 <p class="sec">מיקום מדויק וחיתוך</p>
-<div class="row"><button data-a="L">←</button><button data-a="U">↑</button><button data-a="D">↓</button><button data-a="R">→</button><button data-a="crop">✂ חיתוך</button><button data-a="nocrop">בטל חיתוך</button><button data-a="rs">איפוס</button></div></section>`).join('');ui()}
+<div class="row"><button data-a="L">←</button><button data-a="U">↑</button><button data-a="D">↓</button><button data-a="R">→</button><button data-a="crop">✂ חיתוך</button><button data-a="nocrop">בטל חיתוך</button><button data-a="rs">איפוס</button></div><div class="row"><button data-a="fo">התאם גודל לשנייה (לפי רוחב)</button></div></section>`).join('');ui()}
 function ui(){$$('.card').forEach(c=>{const l=S.L[+c.dataset.i];c.classList.toggle('on',l.i===S.act);c.querySelector('[data-f=rot]').value=+l.rot.toFixed(2);c.querySelector('[data-f=sc]').value=+(l.sx*100).toFixed(2)});hint()}
 $('#cards').onclick=e=>{const c=e.target.closest('.card');if(!c)return;const i=+c.dataset.i,a=e.target.dataset.a;if(S.act!==i)sel(i);
  if(a&&ops[a]){const l=S.L[i];ops[a](l);if(!'LRUD'.includes(a)&&a!=='crop'){refresh(l);ov();ui()}}};
@@ -204,13 +215,50 @@ function addPt(w){const l=S.L[S.act],p={x:w[0],y:w[1]};S.pf.push(p);
  S.ps++;hint();ov();ui()}
 let blk;$('#bl').onclick=e=>{const on=e.target.classList.toggle('on');clearInterval(blk);S.L[0].vis=S.L[1].vis=true;
  if(on)blk=setInterval(()=>{S.L[1].vis=!S.L[1].vis;place(S.L[1])},700);else{place(S.L[0]);place(S.L[1])}};
+/* ---------- compare mode: 3 colours (only previous / only new / same) ---------- */
+const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+function ink(c){const W=c.width,H=c.height,d=c.getContext('2d').getImageData(0,0,W,H).data,m=new Uint8Array(W*H);for(let i=0,j=0;j<m.length;i+=4,j++)m[j]=d[i]+d[i+1]+d[i+2]<705?1:0;return m}
+function win(m,W,H,r,e){if(r<1)return m;const v0=e?1:0,n=2*r+1,t=new Uint8Array(W*H),o=new Uint8Array(W*H);
+ for(let y=0;y<H;y++){const b=y*W;let c=0;for(let i=-r;i<=r;i++)c+=i<0||i>=W?v0:m[b+i];
+  for(let x=0;x<W;x++){t[b+x]=e?(c===n?1:0):(c>0?1:0);const a=x+r+1,q=x-r;c+=(a>=W?v0:m[b+a])-(q<0?v0:m[b+q])}}
+ const cnt=new Int32Array(W);for(let x=0;x<W;x++){let c=0;for(let i=-r;i<=r;i++)c+=i<0||i>=H?v0:t[i*W+x];cnt[x]=c}
+ for(let y=0;y<H;y++){const b=y*W;for(let x=0;x<W;x++)o[b+x]=e?(cnt[x]===n?1:0):(cnt[x]>0?1:0);
+  const a=y+r+1,q=y-r;for(let x=0;x<W;x++)cnt[x]+=(a>=H?v0:t[a*W+x])-(q<0?v0:t[q*W+x])}
+ return o}
+function despeck(m,W,H,minPx){if(minPx<2)return m;const dm=win(m,W,H,2),seen=new Uint8Array(W*H),st=new Int32Array(W*H),buf=new Int32Array(W*H);
+ for(let s0=0;s0<dm.length;s0++){if(!dm[s0]||seen[s0])continue;let sp=0,bn=0,n=0;st[sp++]=s0;seen[s0]=1;
+  while(sp){const p=st[--sp];buf[bn++]=p;if(m[p])n++;const x=p%W;
+   if(x>0&&dm[p-1]&&!seen[p-1]){seen[p-1]=1;st[sp++]=p-1}if(x<W-1&&dm[p+1]&&!seen[p+1]){seen[p+1]=1;st[sp++]=p+1}
+   if(p>=W&&dm[p-W]&&!seen[p-W]){seen[p-W]=1;st[sp++]=p-W}if(p+W<dm.length&&dm[p+W]&&!seen[p+W]){seen[p+W]=1;st[sp++]=p+W}}
+  if(n<minPx)for(let i=0;i<bn;i++)m[buf[i]]=0}
+ return m}
+/* s = pixels per sheet unit; tolerance/gap/min-size are given in sheet units so they behave the same at any zoom */
+function diffCanvas(ca,cb,s){const W=ca.width,H=ca.height,A=ink(ca),B=ink(cb),r=v=>Math.min(30,Math.round(v*s)),g=Math.ceil(r(S.gap)/2),t=Math.max(S.tol>0?1:0,r(S.tol));
+ let Ac=A,Bc=B;if(g>0){Ac=win(win(A,W,H,g),W,H,g,1);Bc=win(win(B,W,H,g),W,H,g,1)}
+ const Ad=win(Ac,W,H,t),Bd=win(Bc,W,H,t),R=new Uint8Array(W*H),D=new Uint8Array(W*H);
+ for(let i=0;i<R.length;i++){R[i]=A[i]&&!Bd[i]?1:0;D[i]=B[i]&&!Ad[i]?1:0}
+ const mn=Math.round(S.mn*s*2);despeck(R,W,H,mn);despeck(D,W,H,mn);
+ const Rv=win(R,W,H,1),Dv=win(D,W,H,1),out=new ImageData(W,H),o=out.data,c1=rgb(S.L[0].col),c2=rgb(S.L[1].col),c3=rgb(S.cc);
+ for(let i=0,j=0;i<A.length;i++,j+=4){const p=Rv[i]?c1:Dv[i]?c2:(A[i]||B[i])?c3:null;
+  if(p){o[j]=p[0];o[j+1]=p[1];o[j+2]=p[2]}else{o[j]=o[j+1]=o[j+2]=255}o[j+3]=255}
+ const c=document.createElement('canvas');c.width=W;c.height=H;c.getContext('2d').putImageData(out,0,0);return c}
+function placeD(){const r=S.dr;if(!r)return;const f=S.k/r.k;$('#dc').style.transform=`translate(${S.tx-f*r.tx}px,${S.ty-f*r.ty}px) scale(${f})`}
+function showMode(){$('#dc').hidden=!(S.cmp&&S.dok);S.L.forEach(place)}
+function diff(){const a=S.L[0],b=S.L[1];if(!S.cmp||!a.raw||!b.raw||a.raw.width!==b.raw.width)return;
+ const c=diffCanvas(a.raw,b.raw,Math.max(a.r.k,b.r.k)*dpr()),dc=$('#dc');dc.width=c.width;dc.height=c.height;dc.getContext('2d').drawImage(c,0,0);
+ S.dr={k:a.r.k,tx:a.r.tx,ty:a.r.ty};S.dok=true;placeD();showMode()}
+let sdt;function schedDiff(){if(!S.cmp)return;clearTimeout(sdt);sdt=setTimeout(()=>{if(S.L.every(l=>l.raw&&l.done===l.tok))diff()},40)}
+$('#cmp').onchange=e=>{S.cmp=e.target.checked;S.dok=false;$('#cmpopts').hidden=!S.cmp;showMode();if(S.cmp)schedDiff()};
+[['tol','v1'],['gap','v2'],['mn','v3']].forEach(([k,v])=>{const el=$('#'+k);el.oninput=()=>{S[k]=+el.value;$('#'+v).textContent=el.value};el.onchange=()=>{S.dok=false;showMode();schedDiff()}});
+$('#cc').onchange=e=>{S.cc=e.target.value;schedDiff()};
 /* ---------- export (re-rendered at high resolution) ---------- */
-async function compose(k,tx,ty,W,H){const out=document.createElement('canvas');out.width=W;out.height=H;const x=out.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);
+async function compose(k,tx,ty,W,H){if(S.cmp){const cs=[];for(const l of S.L){const c=document.createElement('canvas');c.width=W;c.height=H;await draw(l,c,k,tx,ty,1,false);cs.push(c)}return diffCanvas(cs[0],cs[1],k)}
+ const out=document.createElement('canvas');out.width=W;out.height=H;const x=out.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);
  for(const l of S.L){if(!l.vis)continue;const c=document.createElement('canvas');c.width=W;c.height=H;await draw(l,c,k,tx,ty,1,S.tint);x.globalCompositeOperation='multiply';x.globalAlpha=l.op;x.drawImage(c,0,0)}return out}
-const lim=matchMedia('(max-width:800px)').matches?3500:6000;
+const lim0=matchMedia('(max-width:800px)').matches?3500:6000,LIM=()=>S.cmp?Math.min(lim0,4000):lim0;
 async function shot(full){$('#busy').hidden=false;await new Promise(r=>setTimeout(r,30));
- try{if(full){const a=S.L[0].src,s=lim/Math.max(a.w,a.h);return await compose(s,0,0,Math.round(a.w*s),Math.round(a.h*s))}
-  const q=Math.min(4,lim/Math.max(stage.clientWidth,stage.clientHeight));return await compose(S.k*q,S.tx*q,S.ty*q,Math.round(stage.clientWidth*q),Math.round(stage.clientHeight*q))}
+ try{if(full){const a=S.L[0].src,s=LIM()/Math.max(a.w,a.h);return await compose(s,0,0,Math.round(a.w*s),Math.round(a.h*s))}
+  const q=Math.min(4,LIM()/Math.max(stage.clientWidth,stage.clientHeight));return await compose(S.k*q,S.tx*q,S.ty*q,Math.round(stage.clientWidth*q),Math.round(stage.clientHeight*q))}
  catch(x){alert('הייצוא נכשל: '+x.message)}finally{$('#busy').hidden=true}}
 const png=async full=>{const c=await shot(full);if(!c)return;c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='השוואה.png';a.click()})};
 $('#e1').onclick=()=>png(true);$('#e2').onclick=()=>png(false);
