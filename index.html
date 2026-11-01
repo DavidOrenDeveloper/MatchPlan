@@ -4,6 +4,12 @@
 <title>השוואת תוכניות</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/icon.svg">
 <meta name="theme-color" content="#0f172a">
+<script>
+window.__L=[];window.__log=function(t,m){var a=window.__L;a.push({t:new Date().toISOString(),type:t,msg:String(m)});if(a.length>200)a.shift()};
+addEventListener('error',function(e){var x=e.target;if(x&&x!==window&&(x.src||x.href))window.__log('טעינת קובץ','נכשלה: '+(x.src||x.href));else window.__log('שגיאה',(e.message||'')+' @'+(e.filename||'')+':'+e.lineno+':'+e.colno+(e.error&&e.error.stack?'\n'+e.error.stack:''))},true);
+addEventListener('unhandledrejection',function(e){var r=e.reason;window.__log('Promise',r&&r.stack?r.stack:String(r&&r.message||r))});
+['error','warn'].forEach(function(k){var o=console[k];console[k]=function(){try{window.__log('console.'+k,[].slice.call(arguments).map(function(a){return a&&a.stack?a.stack:typeof a==='object'?JSON.stringify(a):String(a)}).join(' '))}catch(_){}o.apply(console,arguments)}});
+</script>
 <style>
 :root{--bg:#f1f5f9;--card:#fff;--ink:#0f172a;--mut:#64748b;--ln:#e2e8f0;--ac:#4f46e5;--acs:#eef2ff;--r:14px}
 *{box-sizing:border-box}html,body{margin:0;height:100%}
@@ -57,19 +63,25 @@ input[type=number]{width:72px;padding:6px 8px;border:1px solid var(--ln);border-
 #pa{display:none}
 @media print{body>*{display:none!important}#pa{display:block!important}#pa img{width:100%}@page{margin:8mm}}
 #busy{position:fixed;inset:0;background:#ffffffb0;display:grid;place-items:center;z-index:20;font-weight:600}
+.gear{background:transparent}#hg{position:fixed;top:12px;inset-inline-end:12px;z-index:5}
+#dlg{position:fixed;inset:0;background:#0f172a99;z-index:40;display:grid;place-items:center;padding:12px}
+#dlg>div{background:#fff;border-radius:16px;padding:18px;width:min(680px,100%);max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:10px}
+#dlg h3{margin:0;font-size:18px}#rep{width:100%;height:260px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;direction:ltr;text-align:left;border:1px solid var(--ln);border-radius:10px;padding:8px}
+#upd{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:50;background:#0f172a;color:#fff;padding:10px 14px;border-radius:14px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 30px #0f172a60;max-width:94%}
+#upd button{padding:6px 12px}#upd .pri{padding:7px 14px;font-size:14px}
 </style></head><body>
 
-<section id="home">
+<section id="home"><button class="gear" id="hg">⚙ הגדרות</button>
 <h1>השוואת תוכניות</h1><p>טען שתי תוכניות (PDF או תמונה), יישר אותן זו על זו וראה מה השתנה.</p>
 <div class="drops">
 <label class="drop"><i style="background:#e5484d"></i><b>תוכנית קודמת</b><span id="nA">בחר קובץ…</span><input type="file" id="fA" accept=".pdf,image/*"><input type="number" id="pA" min="1" value="1" hidden></label>
 <label class="drop"><i style="background:#1f7ae0"></i><b>תוכנית חדשה</b><span id="nB">בחר קובץ…</span><input type="file" id="fB" accept=".pdf,image/*"><input type="number" id="pB" min="1" value="1" hidden></label>
 </div>
-<p id="err"></p><button id="go" class="pri">התחל השוואה</button>
+<p id="err"></p><button id="go" class="pri">התחל השוואה</button><button id="resume" hidden style="margin-top:10px;width:100%;padding:12px"></button>
 </section>
 
 <section id="work" hidden>
-<div id="top"><button id="back">‹ חזרה</button><b>השוואת תוכניות</b><button id="sbt">שכבות</button></div>
+<div id="top"><button id="back">‹ חזרה</button><b>השוואת תוכניות</b><button class="gear">⚙ הגדרות</button><button id="sbt">שכבות</button></div>
 <div id="body">
 <div id="stage"><canvas id="dc" hidden></canvas><canvas id="ov"></canvas><div id="hint"></div>
 <div id="tb">
@@ -87,6 +99,15 @@ input[type=number]{width:72px;padding:6px 8px;border:1px solid var(--ln);border-
 <p class="sec">ייצוא (מרונדר מחדש ברזולוציה גבוהה)</p>
 <div class="exp"><button id="e1">PNG גיליון מלא</button><button id="e2">PNG התצוגה הנוכחית</button><button id="e3">הדפסה</button></div>
 </aside></div></section>
+<div id="upd" hidden><span id="ut"></span><button id="ub" class="pri">עדכן עכשיו</button><button id="uc">אחר כך</button></div>
+<div id="dlg" hidden><div><h3>הגדרות</h3>
+<div class="box"><b>עדכון</b><div>גרסה נוכחית: <b id="sv"></b> · אחרונה בשרת: <b id="lv">—</b></div><div id="um" class="sec"></div>
+<div class="row"><button id="bu">בדוק עדכון</button><button id="ub2" class="pri" style="padding:8px 14px;font-size:14px" hidden>עדכן עכשיו</button></div>
+<p class="sec">העדכון שומר את הקבצים והמצב של הפרויקט הנוכחי וטוען אותם מחדש.</p></div>
+<div class="box"><b>אבחון תקלות</b><p class="sec">כל תקלה שהאפליקציה מזהה נרשמת כאן. לחץ "העתק דוח" והדבק אותו בשיחה.</p>
+<div class="row"><button id="dg">הרץ בדיקה</button><button id="cp" class="pri" style="padding:8px 14px;font-size:14px">העתק דוח</button><button id="cl">נקה יומן</button></div>
+<textarea id="rep" readonly></textarea><div id="cm" class="sec"></div></div>
+<button id="dx">סגור</button></div></div>
 <div id="busy" hidden>מעבד…</div><div id="pa"></div>
 
 <script type="module">
@@ -97,23 +118,31 @@ const NM=['קודמת','חדשה'],COL=['#e5484d','#1f7ae0'];
 const S={L:[],act:1,tool:'move',k:1,tx:0,ty:0,tint:true,ps:0,pf:[],rb:null,cmp:false,dok:false,tol:1.5,gap:3,mn:6,cc:'#9ca3af'};
 const F=[null,null];
 /* ---------- load files ---------- */
-['A','B'].forEach((n,i)=>$('#f'+n).onchange=async e=>{const f=e.target.files[0];if(!f)return;$('#err').textContent='';
+const log=(t,e)=>window.__log(t,e&&e.stack?e.stack:e&&e.message?e.message:e);
+async function setF(i,f,page){const n='AB'[i];
  try{const o={file:f};if(/pdf/i.test(f.type)||/\.pdf$/i.test(f.name)){o.pdf=await pdfjs.getDocument({data:await f.arrayBuffer()}).promise;o.n=o.pdf.numPages}
-  F[i]=o;$('#n'+n).textContent=f.name+(o.n>1?` (${o.n} עמודים – בחר עמוד למטה)`:'');const p=$('#p'+n);p.hidden=!(o.n>1);p.max=o.n||1;p.value=1}
- catch(x){$('#err').textContent='לא ניתן לקרוא את הקובץ: '+x.message}});
+  F[i]=o;$('#n'+n).textContent=f.name+(o.n>1?` (${o.n} עמודים – בחר עמוד למטה)`:'');const p=$('#p'+n);p.hidden=!(o.n>1);p.max=o.n||1;p.value=page||1}
+ catch(x){log('קובץ '+f.name,x);throw x}}
+['A','B'].forEach((n,i)=>$('#f'+n).onchange=async e=>{const f=e.target.files[0];if(!f)return;$('#err').textContent='';
+ try{await setF(i,f)}catch(x){$('#err').textContent='לא ניתן לקרוא את הקובץ: '+x.message}});
 $$('.drop input[type=number]').forEach(p=>p.onclick=e=>e.preventDefault());
-async function mk(i,page){const o=F[i],s={name:o.file.name};
+async function mk(i,page){const o=F[i],s={name:o.file.name,pn:page};
  if(o.pdf){s.pdf=o.pdf;s.pg=await o.pdf.getPage(page);const v=s.pg.getViewport({scale:1});s.w=v.width;s.h=v.height}
  else{s.bmp=await createImageBitmap(o.file);s.w=s.bmp.width*.75;s.h=s.bmp.height*.75}return s}
-$('#go').onclick=async()=>{if(!F[0]||!F[1]){$('#err').textContent='יש לבחור שתי תוכניות';return}
- $('#busy').hidden=false;
- try{const a=await mk(0,Math.min(F[0].n||1,Math.max(1,+$('#pA').value||1))),b=await mk(1,Math.min(F[1].n||1,Math.max(1,+$('#pB').value||1)));
+async function start(saved){if(!saved&&(!F[0]||!F[1])){$('#err').textContent='יש לבחור שתי תוכניות';return}
+ $('#busy').hidden=false;const pg=i=>saved?saved.files[i].page:+$(i?'#pB':'#pA').value||1;
+ try{const a=await mk(0,Math.min(F[0].n||1,Math.max(1,pg(0)))),b=await mk(1,Math.min(F[1].n||1,Math.max(1,pg(1))));
   stage.querySelectorAll('.lc').forEach(c=>c.remove());S.L=[];
   [a,b].forEach((src,i)=>{const cv=document.createElement('canvas');cv.className='lc';stage.insertBefore(cv,$('#ov'));
    S.L.push({src,i,cv,pos:{x:a.w/2,y:a.h/2},rot:0,sx:1,fx:1,fy:1,crop:null,vis:true,col:COL[i],op:.9,tok:0,r:null})});
-  const r=Math.min(a.w/b.w,a.h/b.h);if(r<.5||r>2)S.L[1].sx=r;
-  $('#home').hidden=true;$('#work').hidden=false;S.act=1;S.cmp=false;S.dok=false;$('#cmp').checked=false;$('#cmpopts').hidden=true;$('#dc').hidden=true;cards();size();fit();setTool('move')}
- catch(x){$('#err').textContent='שגיאה: '+x.message}$('#busy').hidden=true};
+  S.dok=false;S.pf=[];S.ps=0;
+  if(saved){saved.layers.forEach((p,i)=>Object.assign(S.L[i],p));Object.assign(S,saved.view,saved.opt,{act:saved.act,cmp:!!saved.cmp,tint:saved.tint!==false})}
+  else{const r=Math.min(a.w/b.w,a.h/b.h);if(r<.5||r>2)S.L[1].sx=r;S.act=1;S.cmp=false}
+  $('#cmp').checked=S.cmp;$('#cmpopts').hidden=!S.cmp;$('#tint').checked=S.tint;$('#cc').value=S.cc;
+  [['tol','v1'],['gap','v2'],['mn','v3']].forEach(([k,v])=>{$('#'+k).value=S[k];$('#'+v).textContent=S[k]});
+  $('#home').hidden=true;$('#work').hidden=false;cards();size();if(!saved)fit();setTool('move');showMode()}
+ catch(x){log('התחלה',x);$('#err').textContent='שגיאה: '+x.message}$('#busy').hidden=true}
+$('#go').onclick=()=>start();
 $('#back').onclick=()=>{clearInterval(blk);$('#work').hidden=true;$('#home').hidden=false};
 /* ---------- rendering (re-rendered from the vector at every zoom) ---------- */
 const M=(l,k=S.k,tx=S.tx,ty=S.ty,d=dpr())=>new DOMMatrix().translate(d*tx,d*ty).scale(d*k).translate(l.pos.x,l.pos.y).rotate(l.rot).scale(l.sx*l.fx,l.sx*l.fy).translate(-l.src.w/2,-l.src.h/2);
@@ -124,10 +153,10 @@ async function draw(l,c,k,tx,ty,d,tint){const x=c.getContext('2d'),m=M(l,k,tx,ty
  if(tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,c.width,c.height)}}
 async function refresh(l){const t=++l.tok;l.task&&l.task.cancel();const d=dpr(),c=document.createElement('canvas'),W=Math.round(stage.clientWidth*d),H=Math.round(stage.clientHeight*d);
  if(!W||!H)return;c.width=W;c.height=H;const k=S.k,tx=S.tx,ty=S.ty,px=l.pos.x,py=l.pos.y;
- try{await draw(l,c,k,tx,ty,d,false)}catch(e){return}
+ try{await draw(l,c,k,tx,ty,d,false)}catch(e){if(!/cancel/i.test(String(e&&(e.name||'')+(e.message||''))))log('ציור '+l.src.name,e);return}
  if(t!==l.tok)return;l.cv.width=W;l.cv.height=H;const x=l.cv.getContext('2d');x.drawImage(c,0,0);
  if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over'}
- l.raw=c;l.done=t;l.r={k,tx,ty,px,py};place(l);schedDiff()}
+ l.raw=c;l.done=t;l.r={k,tx,ty,px,py};place(l);schedDiff();saveS()}
 function place(l){const r=l.r;l.cv.style.display=l.vis&&!(S.cmp&&S.dok)?'':'none';l.cv.style.opacity=l.op;if(!r)return;const f=S.k/r.k;
  l.cv.style.transform=`translate(${S.tx-f*r.tx+S.k*(l.pos.x-r.px)}px,${S.ty-f*r.ty+S.k*(l.pos.y-r.py)}px) scale(${f})`}
 let vt;const viewChanged=()=>{S.L.forEach(place);placeD();ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),120)};
@@ -182,7 +211,7 @@ const ops={r90:l=>l.rot+=90,r270:l=>l.rot-=90,rp:l=>l.rot+=.1,rm:l=>l.rot-=.1,
  fo:l=>{const o=S.L[1-l.i];l.sx=o.src.w*o.sx/l.src.w;l.pos={x:o.pos.x,y:o.pos.y}}};
 function sel(i){S.act=i;S.pf=[];S.ps=0;ui();setTool(S.tool)}
 function cards(){$('#cards').innerHTML=S.L.map((l,i)=>`<section class="card" data-i="${i}"><header><span class="dot" style="background:${l.col}"></span><b>${NM[i]}</b><span class="fn">${l.src.name}</span><span class="tag">נבחרה</span></header>
-<div class="row"><label><input type="checkbox" data-f="vis" checked>הצג</label><input type="color" data-f="col" value="${l.col}"><input type="range" data-f="op" min=".1" max="1" step=".05" value="${l.op}"></div>
+<div class="row"><label><input type="checkbox" data-f="vis" ${l.vis?'checked':''}>הצג</label><input type="color" data-f="col" value="${l.col}"><input type="range" data-f="op" min=".1" max="1" step=".05" value="${l.op}"></div>
 <p class="sec">סיבוב והיפוך – רק לתוכנית הזו</p>
 <div class="row"><button data-a="r270">⟲ 90°</button><button data-a="r90">⟳ 90°</button><button data-a="fh">↔ היפוך</button><button data-a="fv">↕ היפוך</button></div>
 <div class="row"><label>°<input type="number" step=".1" data-f="rot"></label><label>%<input type="number" step=".1" data-f="sc"></label><button data-a="rm">−0.1°</button><button data-a="rp">+0.1°</button></div>
@@ -244,7 +273,8 @@ function diffCanvas(ca,cb,s){const W=ca.width,H=ca.height,A=ink(ca),B=ink(cb),r=
  const c=document.createElement('canvas');c.width=W;c.height=H;c.getContext('2d').putImageData(out,0,0);return c}
 function placeD(){const r=S.dr;if(!r)return;const f=S.k/r.k;$('#dc').style.transform=`translate(${S.tx-f*r.tx}px,${S.ty-f*r.ty}px) scale(${f})`}
 function showMode(){$('#dc').hidden=!(S.cmp&&S.dok);S.L.forEach(place)}
-function diff(){const a=S.L[0],b=S.L[1];if(!S.cmp||!a.raw||!b.raw||a.raw.width!==b.raw.width)return;
+function diff(){try{diff0()}catch(e){log('השוואה',e)}}
+function diff0(){const a=S.L[0],b=S.L[1];if(!S.cmp||!a.raw||!b.raw||a.raw.width!==b.raw.width)return;
  const c=diffCanvas(a.raw,b.raw,Math.max(a.r.k,b.r.k)*dpr()),dc=$('#dc');dc.width=c.width;dc.height=c.height;dc.getContext('2d').drawImage(c,0,0);
  S.dr={k:a.r.k,tx:a.r.tx,ty:a.r.ty};S.dok=true;placeD();showMode()}
 let sdt;function schedDiff(){if(!S.cmp)return;clearTimeout(sdt);sdt=setTimeout(()=>{if(S.L.every(l=>l.raw&&l.done===l.tok))diff()},40)}
@@ -259,9 +289,56 @@ const lim0=matchMedia('(max-width:800px)').matches?3500:6000,LIM=()=>S.cmp?Math.
 async function shot(full){$('#busy').hidden=false;await new Promise(r=>setTimeout(r,30));
  try{if(full){const a=S.L[0].src,s=LIM()/Math.max(a.w,a.h);return await compose(s,0,0,Math.round(a.w*s),Math.round(a.h*s))}
   const q=Math.min(4,LIM()/Math.max(stage.clientWidth,stage.clientHeight));return await compose(S.k*q,S.tx*q,S.ty*q,Math.round(stage.clientWidth*q),Math.round(stage.clientHeight*q))}
- catch(x){alert('הייצוא נכשל: '+x.message)}finally{$('#busy').hidden=true}}
+ catch(x){log('ייצוא',x);alert('הייצוא נכשל: '+x.message)}finally{$('#busy').hidden=true}}
 const png=async full=>{const c=await shot(full);if(!c)return;c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='השוואה.png';a.click()})};
 $('#e1').onclick=()=>png(true);$('#e2').onclick=()=>png(false);
 $('#e3').onclick=async()=>{const c=await shot(true);if(!c)return;const im=new Image();im.src=c.toDataURL('image/png');$('#pa').innerHTML='';$('#pa').appendChild(im);await im.decode();print();setTimeout(()=>$('#pa').innerHTML='',1500)};
-if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+/* ---------- version / update / persistence / diagnostics ---------- */
+const VER='2.1.1';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
+const DBo=()=>new Promise((res,rej)=>{const r=indexedDB.open('matchplan',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+async function idb(m,k,v){const d=await DBo();return new Promise((res,rej)=>{const t=d.transaction('p',m==='get'?'readonly':'readwrite'),st=t.objectStore('p'),q=m==='get'?st.get(k):st.put(v,k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
+const snap=()=>({files:F.map((o,i)=>({file:o.file,page:S.L[i].src.pn})),layers:S.L.map(l=>({pos:l.pos,rot:l.rot,sx:l.sx,fx:l.fx,fy:l.fy,crop:l.crop,vis:l.vis,col:l.col,op:l.op})),view:{k:S.k,tx:S.tx,ty:S.ty},act:S.act,cmp:S.cmp,tint:S.tint,opt:{tol:S.tol,gap:S.gap,mn:S.mn,cc:S.cc},t:Date.now()});
+let svt;function saveS(){if(!S.L.length)return;clearTimeout(svt);svt=setTimeout(saveNow,800)}
+async function saveNow(){if(!S.L.length||$('#work').hidden)return;try{await idb('put','last',snap())}catch(e){log('שמירת פרויקט',e)}}
+addEventListener('pagehide',saveNow);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveNow()});
+async function resume(){if(!LAST)return;$('#err').textContent='';try{for(let i=0;i<2;i++)await setF(i,LAST.files[i].file,LAST.files[i].page);await start(LAST)}catch(e){$('#err').textContent='לא ניתן לשחזר את הפרויקט: '+e.message}}
+$('#resume').onclick=resume;
+idb('get','last').then(v=>{if(!v)return;LAST=v;const r=$('#resume');r.hidden=false;r.textContent='המשך פרויקט אחרון: '+v.files.map(f=>f.file.name).join(' + ');
+ if(sessionStorage.getItem('mp-resume')){sessionStorage.removeItem('mp-resume');resume()}}).catch(e=>log('קריאת פרויקט שמור',e));
+async function checkUpd(manual){if(!manual&&Date.now()-lastChk<30000)return latest;lastChk=Date.now();
+ try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();latest=j.version;notes=j.notes||'';$('#lv').textContent=latest;
+  const nw=latest&&latest!==VER;$('#ub2').hidden=!nw;$('#um').textContent=nw?'זמינה גרסה חדשה: '+latest:'אתה על הגרסה העדכנית ✔';
+  if(nw&&(manual||dism!==latest)){$('#ut').textContent='יש גרסה חדשה ('+latest+')'+(notes?' – '+notes:'');$('#upd').hidden=false}return latest}
+ catch(e){log('עדכון','בדיקת עדכון נכשלה: '+(e.message||e));$('#um').textContent='הבדיקה נכשלה – בדוק חיבור לאינטרנט';if(manual)throw e}}
+async function doUpdate(){$('#busy').hidden=false;await saveNow();sessionStorage.setItem('mp-resume','1');
+ try{const sc=new URL('./',location.href).href,rg=navigator.serviceWorker?(await navigator.serviceWorker.getRegistrations()).filter(r=>r.scope===sc):[];await Promise.all(rg.map(r=>r.unregister()));const ks=await caches.keys();await Promise.all(ks.filter(k=>k.startsWith('matchplan-')).map(k=>caches.delete(k)))}catch(e){log('עדכון',e)}
+ location.replace(location.pathname+'?u='+Date.now())}
+$('#ub').onclick=$('#ub2').onclick=doUpdate;$('#uc').onclick=()=>{dism=latest;$('#upd').hidden=true};
+$('#bu').onclick=()=>{$('#um').textContent='בודק…';checkUpd(true).catch(()=>{});refreshReport()};
+if(location.search.includes('u='))history.replaceState(null,'',location.pathname);
+setInterval(()=>checkUpd(),5*60e3);document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpd()});addEventListener('focus',()=>checkUpd());setTimeout(()=>checkUpd(),2500);
+function report(){const L=[],a=(...x)=>L.push(x.join(' '));
+ a('=== דוח אבחון MatchPlan ===');a('גרסה:',VER,'| אחרונה בשרת:',latest||'לא נבדק');a('זמן:',new Date().toString());a('כתובת:',location.href);
+ a('דפדפן:',navigator.userAgent);a('מסך:',screen.width+'x'+screen.height,'| חלון:',innerWidth+'x'+innerHeight,'| dpr:',dpr(),'| מקוון:',navigator.onLine,'| SW פעיל:',!!(navigator.serviceWorker&&navigator.serviceWorker.controller));
+ if(S.L.length){a('--- פרויקט ---');S.L.forEach((l,i)=>a(NM[i]+':',l.src.name,'| עמוד',l.src.pn,'| גודל',Math.round(l.src.w)+'x'+Math.round(l.src.h),F[i]&&F[i].pdf?'PDF':'תמונה','| מיקום',Math.round(l.pos.x)+','+Math.round(l.pos.y),'| סיבוב',+l.rot.toFixed(2),'| קנ"מ',+l.sx.toFixed(3),'| היפוך',l.fx<0?'א':'-',l.fy<0?'ב':'-','| חיתוך',l.crop?l.crop.map(Math.round).join(','):'אין','| גלוי',l.vis));
+  a('תצוגה: k='+S.k.toFixed(4),'tx='+Math.round(S.tx),'ty='+Math.round(S.ty),'| כלי:',S.tool,'| מצב השוואה:',S.cmp,'| סבילות',S.tol,'פערים',S.gap,'מינימום',S.mn)}
+ if(DIAG){a('--- בדיקות ---');a(DIAG)}
+ a('--- יומן ('+window.__L.length+') ---');window.__L.slice(-60).forEach(e=>a(e.t.slice(11,19),'['+e.type+']',e.msg));if(!window.__L.length)a('אין תקלות שנרשמו');
+ return L.join('\n')}
+function refreshReport(){$('#sv').textContent=VER;$('#rep').value=report()}
+async function diagnose(){const R=[],t=async(n,f)=>{try{R.push('✔ '+n+': '+await f())}catch(e){R.push('✘ '+n+': '+(e&&e.message||e));log('אבחון '+n,e)}};
+ await t('pdf.js',()=>pdfjs.version||'נטען');
+ await t('Worker של pdf.js',async()=>{const r=await fetch(pdfjs.GlobalWorkerOptions.workerSrc,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);return'HTTP '+r.status});
+ await t('version.json',async()=>await checkUpd(true));
+ await t('IndexedDB',async()=>{await idb('put','test',1);return'תקין'});
+ await t('Canvas גדול',()=>{const c=document.createElement('canvas');c.width=c.height=8000;const x=c.getContext('2d');x.fillRect(0,0,1,1);return x.getImageData(0,0,1,1).data[3]===255?'8000x8000 תקין':'נכשל'});
+ await t('Service Worker',async()=>(await navigator.serviceWorker.getRegistrations()).filter(r=>r.scope===new URL('./',location.href).href).length+' רישומים של האפליקציה הזו');
+ await t('אחסון',async()=>{const e=await navigator.storage.estimate();return Math.round(e.usage/1e6)+'MB מתוך '+Math.round(e.quota/1e6)+'MB'});
+ await t('DOMMatrix / ImageData',()=>typeof DOMMatrix+' / '+typeof ImageData);
+ DIAG=R.join('\n');refreshReport()}
+$$('.gear').forEach(b=>b.onclick=()=>{$('#dlg').hidden=false;refreshReport()});$('#dx').onclick=()=>$('#dlg').hidden=true;
+$('#dg').onclick=async()=>{$('#dg').textContent='בודק…';await diagnose();$('#dg').textContent='הרץ בדיקה'};
+$('#cl').onclick=()=>{window.__L.length=0;DIAG='';refreshReport()};
+$('#cp').onclick=async()=>{refreshReport();const r=$('#rep');try{await navigator.clipboard.writeText(r.value)}catch(e){r.select();document.execCommand('copy')}$('#cm').textContent='הדוח הועתק – הדבק אותו בשיחה ✔'};
+if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(e=>log('Service Worker',e)));
 </script></body></html>
