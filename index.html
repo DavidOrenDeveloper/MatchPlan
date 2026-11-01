@@ -1,60 +1,219 @@
 <!doctype html>
 <html lang="he" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>השוואת תוכניות – גולדין</title>
+<title>השוואת תוכניות</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/icon.svg">
-<meta name="theme-color" content="#16324f"><link rel="stylesheet" href="css/style.css"></head><body>
+<meta name="theme-color" content="#0f172a">
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--ink:#0f172a;--mut:#64748b;--ln:#e2e8f0;--ac:#4f46e5;--acs:#eef2ff;--r:14px}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{font:15px/1.45 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+button,input,select{font:inherit;color:inherit}
+button{border:1px solid var(--ln);background:var(--card);border-radius:10px;padding:8px 12px;cursor:pointer;transition:.15s}
+button:hover{background:var(--acs);border-color:#c7d2fe}
+button.pri{background:var(--ac);color:#fff;border:0;padding:14px 28px;font-weight:600;font-size:16px;border-radius:12px}
+button.pri:hover{background:#4338ca}
+input[type=number]{width:72px;padding:6px 8px;border:1px solid var(--ln);border-radius:8px;background:#fff}
+#home{max-width:760px;margin:0 auto;padding:48px 20px}
+#home h1{font-size:30px;margin:0 0 6px;letter-spacing:-.5px}#home p{margin:0 0 28px;color:var(--mut)}
+.drops{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.drop{background:var(--card);border:2px dashed #cbd5e1;border-radius:var(--r);padding:28px 18px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:8px;align-items:center;transition:.15s}
+.drop:hover{border-color:var(--ac);background:var(--acs)}
+.drop i{width:14px;height:14px;border-radius:50%;display:block}
+.drop b{font-size:17px}.drop span{color:var(--mut);font-size:13px;word-break:break-all;min-height:1.3em}
+.drop input[type=file]{display:none}
+#err{color:#dc2626;min-height:1.5em;margin:14px 0 0}
+#go{margin-top:22px;width:100%}
+#work{display:flex;flex-direction:column;height:100dvh}
+#top{display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--ink);color:#fff}
+#top button{background:#1e293b;border-color:#334155;color:#fff}#top button:hover{background:#334155}
+#top b{flex:1;font-weight:600}
+#body{flex:1;display:flex;min-height:0}
+#stage{flex:1;position:relative;background:#fff;isolation:isolate;overflow:hidden;touch-action:none;min-width:0;cursor:grab}
+#stage.t-move{cursor:move}#stage.t-crop,#stage.t-pts{cursor:crosshair}
+#stage canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transform-origin:0 0}
+.lc{mix-blend-mode:multiply}
+#hint{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#0f172acc;color:#fff;padding:7px 14px;border-radius:99px;font-size:13px;pointer-events:none;max-width:92%;text-align:center}
+#tb{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:4px;background:#fff;padding:6px;border-radius:16px;box-shadow:0 6px 24px #0f172a40;border:1px solid var(--ln);max-width:96%;flex-wrap:wrap;justify-content:center}
+#tb button{border:0;background:transparent;padding:9px 12px;font-size:14px}
+#tb button.on{background:var(--ac);color:#fff}
+#side{width:340px;background:var(--bg);border-inline-end:1px solid var(--ln);overflow:auto;padding:12px;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:2px solid transparent;border-radius:var(--r);padding:12px;box-shadow:0 1px 3px #0f172a14;display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.card.on{border-color:var(--ac)}
+.card header{display:flex;align-items:center;gap:8px}.card header b{font-size:16px}
+.dot{width:12px;height:12px;border-radius:50%}.fn{flex:1;color:var(--mut);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{font-size:11px;background:var(--ac);color:#fff;padding:2px 8px;border-radius:99px}.card:not(.on) .tag{display:none}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.row label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mut)}
+.row button{padding:7px 10px;font-size:13px}.row input[type=range]{flex:1;min-width:80px}
+.row input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--ln);border-radius:8px;background:#fff}
+.sec{font-size:12px;color:var(--mut);margin:0}
+.exp{display:flex;gap:6px;flex-wrap:wrap}.exp button{flex:1;font-size:13px}
+@media(max-width:800px){.drops{grid-template-columns:1fr}
+#side{position:fixed;inset-inline:0;bottom:0;width:auto;height:52vh;transform:translateY(100%);transition:transform .2s;z-index:6;border-top:1px solid var(--ln);box-shadow:0 -8px 30px #0f172a30}#side.open{transform:none}}
+@media(min-width:801px){#sbt{display:none}}
+#pa{display:none}
+@media print{body>*{display:none!important}#pa{display:block!important}#pa img{width:100%}@page{margin:8mm}}
+#busy{position:fixed;inset:0;background:#ffffffb0;display:grid;place-items:center;z-index:20;font-weight:600}
+</style></head><body>
+
 <section id="home">
-<button id="gear" class="gear">⚙ הגדרות</button><h1>השוואת תוכניות חשמל</h1><p class="sub">גולדין מערכות אלקטרומכניות · מחלקת שינויי דיירים</p>
-<div class="grid">
-<label>פרויקט<input id="fp"></label><label>בניין<input id="fb"></label><label>דירה<input id="fa"></label>
-<label>שם גרסה קודמת<input id="fo" value="קודמת"></label><label>שם גרסה חדשה<input id="fn" value="מעודכנת"></label></div>
-<div class="grid two">
-<div class="file"><b>קובץ קודם</b><input type="file" id="fA" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/*"><span id="nmA"></span><label>עמוד<input type="number" id="pgA" min="1" value="1" disabled></label></div>
-<div class="file"><b>קובץ חדש</b><input type="file" id="fB" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/*"><span id="nmB"></span><label>עמוד<input type="number" id="pgB" min="1" value="1" disabled></label></div></div>
-<button id="go" class="pri">התחל השוואה</button><p id="err" class="err"></p>
-<h2>פרויקטים שמורים</h2><div id="plist"></div><label class="imp">ייבוא קובץ פרויקט (.goldin)<input type="file" id="imp" accept=".goldin"></label>
-<footer class="cred">פותח על ידי דוד אורן</footer></section>
+<h1>השוואת תוכניות</h1><p>טען שתי תוכניות (PDF או תמונה), יישר אותן זו על זו וראה מה השתנה.</p>
+<div class="drops">
+<label class="drop"><i style="background:#e5484d"></i><b>תוכנית קודמת</b><span id="nA">בחר קובץ…</span><input type="file" id="fA" accept=".pdf,image/*"><input type="number" id="pA" min="1" value="1" hidden></label>
+<label class="drop"><i style="background:#1f7ae0"></i><b>תוכנית חדשה</b><span id="nB">בחר קובץ…</span><input type="file" id="fB" accept=".pdf,image/*"><input type="number" id="pB" min="1" value="1" hidden></label>
+</div>
+<p id="err"></p><button id="go" class="pri">התחל השוואה</button>
+</section>
 
 <section id="work" hidden>
-<header><button id="back">‹ חזרה</button>
-<div class="seg" id="views"><button data-v="overlay" class="on">חפיפה</button><button data-v="side">זו לצד זו</button><button data-v="flip">מעבר בין גרסאות</button><button data-v="changes">שינויים בלבד</button></div>
-<div class="seg" id="tools"><button data-t="pan" class="on">הזזה</button><button data-t="mark">סימון ידני</button><button data-t="excl">החרגת אזור</button><button data-t="crop">אזור השוואה</button><button data-t="pts">יישור בנקודות</button><button data-t="sym">הגדרת סמל</button><button data-t="cnt">תיקון ספירה</button></div>
-<button id="un">↶ ביטול</button><button id="re">↷ חזרה</button>
-<button id="sv">שמור</button><button id="exp">ייצוא / הדפסה</button><button id="lst">רשימה</button><button id="gear2">⚙</button></header>
-<main><div id="stage"><canvas id="cv"></canvas><div id="q"></div><div id="lgbar" hidden><span id="lgh"></span><button id="lgt">מצב: בחירה</button><button id="lgr">אפס בחירה</button><button id="lgc">סגור מקרא</button></div></div>
-<aside id="side">
-<details><summary>יישור, רגישות וצבעים</summary>
-<div class="ctl"><button id="auto">יישור אוטומטי</button><button id="clrcrop">נקה אזור השוואה</button><span id="qual"></span></div>
-<div class="ctl"><label>קנה מידה %<input type="number" id="as" step="0.1"></label><label>סיבוב °<input type="number" id="ar" step="0.05"></label><label>הזזה X<input type="number" id="ax"></label><label>הזזה Y<input type="number" id="ay"></label></div>
-<div class="ctl"><label>סבילות לקו (פיקסלים) <input type="range" id="tol" min="0" max="8" value="2"><output id="tov">2</output></label><label><input type="checkbox" id="inv">רקע כהה</label></div>
-<div class="ctl"><label>קודמת בלבד<input type="color" id="co" value="#e5484d"><input type="range" id="ao" min="0" max="1" step=".05" value=".9"></label>
-<label>חדשה בלבד<input type="color" id="cn" value="#1f7ae0"><input type="range" id="an" min="0" max="1" step=".05" value=".9"></label>
-<label>משותף<input type="color" id="cm" value="#8a8f98"><input type="range" id="am" min="0" max="1" step=".05" value=".35"></label>
-<label><input type="checkbox" id="keep">צבע מקור למשותף</label><label><input type="checkbox" id="blink">הבהוב אוטומטי</label></div>
-<div class="ctl"><b>החרגות:</b> <span id="exl"></span></div></details>
-<details><summary>סמלים וכמויות (ניסיוני)</summary>
-<div class="ctl"><label>צד<select id="cs"><option value="o">קודמת</option><option value="n">חדשה</option></select></label><label><input type="checkbox" id="shm" checked>הצג סימונים</label><label>גדלים<select id="sr"><option value="1">אותו גודל</option><option value="m" selected>בינוני (±33%)</option><option value="w">רחב (×0.5–×2)</option></select></label><label>סיבוב<select id="ang"><option value="90" selected>90° (קירות)</option><option value="30">כל 30° (תקרה, איטי)</option></select></label><label><input type="checkbox" id="mir" checked>כולל היפוך (מראה)</label><label>רגישות זיהוי<input type="range" id="rec" min=".6" max=".98" step=".01" value=".85"></label><button id="sgm">הצע העברות</button></div>
-<small>"הגדרת סמל": גרור על סמל. "תיקון ספירה": לחיצה על סימון מוחקת או משחזרת, ולחיצה על ריק מוסיפה סמל נבחר לצד שנבחר.</small>
-<div class="ctl"><b>מקרא:</b><input type="file" id="lgf" accept=".pdf,application/pdf,image/*"><label>עמוד<input type="number" id="lgp" min="1" value="1"></label><button id="lgb">פתח מקרא</button></div>
-<small>בלי קובץ: נפתח המקרא מהקובץ הקודם בעמוד שנבחר. עובד גם עם מקרא סרוק או כזה שהטקסט שלו הומר לקווים (קריאת טקסט בעזרת OCR). בכל קופסת מקרא: גרור על עמודת הסמלים, ואז על אזור הטקסט.</small>
-<div id="syml"></div><div id="qty"></div><div id="mvs"></div></details>
-<div class="sum"><span id="sum"></span><select id="flt"><option value="all">הכול</option><option value="todo">טרם נבדק</option><option value="ok">נבדק</option><option value="ask">דורש בירור</option><option value="fp">התראת שווא</option></select></div>
-<div id="list"></div></aside></main></section>
-<div id="prog" hidden><span id="pt"></span><div class="bar"><i id="pb"></i></div><button id="pc">ביטול</button></div>
-<div id="pa"></div>
-<dialog id="ex"><h3>ייצוא והדפסה</h3>
-<label>היקף<select id="xs"><option value="full">גיליון מלא</option><option value="area">אזור השוואה שנבחר</option></select></label>
-<label>סוג PDF<select id="xm"><option value="auto">אוטומטי (וקטורי כשאפשר)</option><option value="vec">וקטורי</option><option value="img">תמונה באיכות גבוהה</option></select></label>
-<label>איכות תמונה<select id="xq"><option value="2">גבוהה (עד ×2, לפי זיכרון)</option><option value="1">כמו במסך</option></select></label>
-<small id="xn"></small>
-<label><input type="checkbox" id="xl" checked>צרף רשימת שינויים</label>
-<label><input type="checkbox" id="xz" checked>שמור מידות גיליון (בתמונה; בוקטורי המידות נשמרות תמיד)</label>
-<div class="ctl"><button id="xpdf" class="pri">PDF</button><button id="xpng">PNG</button><button id="xprt">הדפסה</button><button id="xgo">ייצוא פרויקט .goldin</button><button id="xx">סגור</button></div></dialog>
-<div id="upd" hidden><span>קיימת גרסה חדשה של האפליקציה</span><button id="updgo" class="pri">עדכן</button><button id="updx" aria-label="סגור">✕</button></div>
-<dialog id="set"><h3>הגדרות</h3><p>גרסה מותקנת: <b id="uver">—</b></p>
-<div class="ctl"><button id="chk">בדוק עדכון</button><span id="ust"></span></div>
-<div class="ctl"><button id="hard">ניקוי מטמון וטעינה מחדש</button></div>
-<small>אם העדכון לא נקלט, ניקוי המטמון טוען מחדש את כל הקבצים מהשרת.</small>
-<div class="ctl"><button id="setx">סגור</button></div></dialog>
-<script src="lib/pdf-lib.min.js"></script><script type="module" src="js/app.js"></script></body></html>
+<div id="top"><button id="back">‹ חזרה</button><b>השוואת תוכניות</b><button id="sbt">שכבות</button></div>
+<div id="body">
+<div id="stage"><canvas id="ov"></canvas><div id="hint"></div>
+<div id="tb">
+<button data-t="move">הזז תוכנית</button><button data-t="view">הזז תצוגה</button><button data-t="crop">חיתוך</button><button data-t="pts">יישור בנקודות</button>
+<button id="fit">התאם</button><button id="zi">＋</button><button id="zo">－</button><button id="bl">הבהוב</button></div></div>
+<aside id="side"><div id="cards"></div>
+<label class="row"><input type="checkbox" id="tint" checked> צבע לכל תוכנית (כבוי = צבעי המקור)</label>
+<p class="sec">ייצוא (מרונדר מחדש ברזולוציה גבוהה)</p>
+<div class="exp"><button id="e1">PNG גיליון מלא</button><button id="e2">PNG התצוגה הנוכחית</button><button id="e3">הדפסה</button></div>
+</aside></div></section>
+<div id="busy" hidden>מעבד…</div><div id="pa"></div>
+
+<script type="module">
+import*as pdfjs from'./lib/pdf.min.mjs';
+pdfjs.GlobalWorkerOptions.workerSrc=new URL('./lib/pdf.worker.min.mjs',import.meta.url).href;
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],dpr=()=>devicePixelRatio||1,stage=$('#stage');
+const NM=['קודמת','חדשה'],COL=['#e5484d','#1f7ae0'];
+const S={L:[],act:1,tool:'move',k:1,tx:0,ty:0,tint:true,ps:0,pf:[],rb:null};
+const F=[null,null];
+/* ---------- load files ---------- */
+['A','B'].forEach((n,i)=>$('#f'+n).onchange=async e=>{const f=e.target.files[0];if(!f)return;$('#err').textContent='';
+ try{const o={file:f};if(/pdf/i.test(f.type)||/\.pdf$/i.test(f.name)){o.pdf=await pdfjs.getDocument({data:await f.arrayBuffer()}).promise;o.n=o.pdf.numPages}
+  F[i]=o;$('#n'+n).textContent=f.name+(o.n>1?` (${o.n} עמודים – בחר עמוד למטה)`:'');const p=$('#p'+n);p.hidden=!(o.n>1);p.max=o.n||1;p.value=1}
+ catch(x){$('#err').textContent='לא ניתן לקרוא את הקובץ: '+x.message}});
+$$('.drop input[type=number]').forEach(p=>p.onclick=e=>e.preventDefault());
+async function mk(i,page){const o=F[i],s={name:o.file.name};
+ if(o.pdf){s.pdf=o.pdf;s.pg=await o.pdf.getPage(page);const v=s.pg.getViewport({scale:1});s.w=v.width;s.h=v.height}
+ else{s.bmp=await createImageBitmap(o.file);s.w=s.bmp.width*.75;s.h=s.bmp.height*.75}return s}
+$('#go').onclick=async()=>{if(!F[0]||!F[1]){$('#err').textContent='יש לבחור שתי תוכניות';return}
+ $('#busy').hidden=false;
+ try{const a=await mk(0,Math.min(F[0].n||1,Math.max(1,+$('#pA').value||1))),b=await mk(1,Math.min(F[1].n||1,Math.max(1,+$('#pB').value||1)));
+  stage.querySelectorAll('.lc').forEach(c=>c.remove());S.L=[];
+  [a,b].forEach((src,i)=>{const cv=document.createElement('canvas');cv.className='lc';stage.insertBefore(cv,$('#ov'));
+   S.L.push({src,i,cv,pos:{x:a.w/2,y:a.h/2},rot:0,sx:1,fx:1,fy:1,crop:null,vis:true,col:COL[i],op:.9,tok:0,r:null})});
+  const r=Math.min(a.w/b.w,a.h/b.h);if(Math.abs(r-1)>.02)S.L[1].sx=r;
+  $('#home').hidden=true;$('#work').hidden=false;S.act=1;cards();size();fit();setTool('move')}
+ catch(x){$('#err').textContent='שגיאה: '+x.message}$('#busy').hidden=true};
+$('#back').onclick=()=>{clearInterval(blk);$('#work').hidden=true;$('#home').hidden=false};
+/* ---------- rendering (re-rendered from the vector at every zoom) ---------- */
+const M=(l,k=S.k,tx=S.tx,ty=S.ty,d=dpr())=>new DOMMatrix().translate(d*tx,d*ty).scale(d*k).translate(l.pos.x,l.pos.y).rotate(l.rot).scale(l.sx*l.fx,l.sx*l.fy).translate(-l.src.w/2,-l.src.h/2);
+async function draw(l,c,k,tx,ty,d,tint){const x=c.getContext('2d'),m=M(l,k,tx,ty,d);x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);
+ if(l.crop){x.setTransform(m);x.beginPath();x.rect(...l.crop);x.clip();x.setTransform(1,0,0,1,0,0)}
+ if(l.src.pdf){l.task=l.src.pg.render({canvasContext:x,viewport:l.src.pg.getViewport({scale:1}),transform:[m.a,m.b,m.c,m.d,m.e,m.f]});await l.task.promise}
+ else{x.setTransform(m);x.drawImage(l.src.bmp,0,0,l.src.w,l.src.h);x.setTransform(1,0,0,1,0,0)}
+ if(tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,c.width,c.height)}}
+async function refresh(l){const t=++l.tok;l.task&&l.task.cancel();const d=dpr(),c=document.createElement('canvas'),W=Math.round(stage.clientWidth*d),H=Math.round(stage.clientHeight*d);
+ if(!W||!H)return;c.width=W;c.height=H;const k=S.k,tx=S.tx,ty=S.ty,px=l.pos.x,py=l.pos.y;
+ try{await draw(l,c,k,tx,ty,d,S.tint)}catch(e){return}
+ if(t!==l.tok)return;l.cv.width=W;l.cv.height=H;l.cv.getContext('2d').drawImage(c,0,0);l.r={k,tx,ty,px,py};place(l)}
+function place(l){const r=l.r;l.cv.style.display=l.vis?'':'none';l.cv.style.opacity=l.op;if(!r)return;const f=S.k/r.k;
+ l.cv.style.transform=`translate(${S.tx-f*r.tx+S.k*(l.pos.x-r.px)}px,${S.ty-f*r.ty+S.k*(l.pos.y-r.py)}px) scale(${f})`}
+let vt;const viewChanged=()=>{S.L.forEach(place);ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),120)};
+const all=()=>{S.L.forEach(refresh);ov();ui()};
+function size(){const d=dpr(),c=$('#ov');c.width=stage.clientWidth*d;c.height=stage.clientHeight*d;if(S.L.length)all()}
+new ResizeObserver(()=>{if(!$('#work').hidden)size()}).observe(stage);
+function fit(){const a=S.L[0].src,w=stage.clientWidth,h=stage.clientHeight;S.k=Math.min(w/a.w,h/a.h)*.94;S.tx=(w-a.w*S.k)/2;S.ty=(h-a.h*S.k)/2;viewChanged()}
+function zoomAt(px,py,f){const nk=Math.min(200,Math.max(.02,S.k*f));S.tx=px-(px-S.tx)*nk/S.k;S.ty=py-(py-S.ty)*nk/S.k;S.k=nk;viewChanged()}
+/* overlay: page outlines, crops, rubber band, alignment points */
+function ov(){const c=$('#ov'),x=c.getContext('2d'),d=dpr();x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,c.width,c.height);
+ const poly=(p,col,w,dash)=>{x.beginPath();p.forEach((q,i)=>i?x.lineTo(q.x,q.y):x.moveTo(q.x,q.y));x.closePath();x.strokeStyle=col;x.lineWidth=w;x.setLineDash(dash||[]);x.stroke()};
+ for(const l of S.L){if(!l.vis)continue;const m=M(l,S.k,S.tx,S.ty,1),pt=(a,b)=>m.transformPoint(new DOMPoint(a,b)),s=l.src;
+  poly([pt(0,0),pt(s.w,0),pt(s.w,s.h),pt(0,s.h)],l.col+'66',1,[4,4]);
+  if(l.crop){const[a,b,w,h]=l.crop;poly([pt(a,b),pt(a+w,b),pt(a+w,b+h),pt(a,b+h)],l.col,2,[8,5])}}
+ if(S.rb){const[a,b]=S.rb,p=(u,v)=>({x:u*S.k+S.tx,y:v*S.k+S.ty});poly([p(a[0],a[1]),p(b[0],a[1]),p(b[0],b[1]),p(a[0],b[1])],COL[S.act],2,[6,4])}
+ S.pf.forEach((q,i)=>{const X=q.x*S.k+S.tx,Y=q.y*S.k+S.ty;x.strokeStyle=COL[i%2===0?1-S.act:S.act];x.lineWidth=2;x.setLineDash([]);x.beginPath();x.arc(X,Y,9,0,7);x.moveTo(X-16,Y);x.lineTo(X+16,Y);x.moveTo(X,Y-16);x.lineTo(X,Y+16);x.stroke()})}
+/* ---------- interaction ---------- */
+const P=new Map();let G=null,space=false;
+const wp=n=>[(n[0]-S.tx)/S.k,(n[1]-S.ty)/S.k],dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+stage.oncontextmenu=e=>e.preventDefault();
+stage.onpointerdown=e=>{if(e.target!==stage)return;stage.setPointerCapture(e.pointerId);P.set(e.pointerId,[e.offsetX,e.offsetY]);
+ if(!G)G={x:e.offsetX,y:e.offsetY,mv:0,pan:e.button===1||e.button===2||space,pinch:false};if(P.size>1)G.pinch=true;
+ if(S.tool==='crop'&&!G.pan&&!G.pinch)S.rb=[wp([e.offsetX,e.offsetY]),wp([e.offsetX,e.offsetY])]};
+stage.onpointermove=e=>{if(!P.has(e.pointerId)||!G)return;const o=P.get(e.pointerId),n=[e.offsetX,e.offsetY],dx=n[0]-o[0],dy=n[1]-o[1];
+ if(P.size===2){const[a,b]=[...P.values()],d0=dist(a,b);P.set(e.pointerId,n);const[a2,b2]=[...P.values()],d1=dist(a2,b2);S.rb=null;
+  S.tx+=dx/2;S.ty+=dy/2;if(d0)zoomAt((a2[0]+b2[0])/2,(a2[1]+b2[1])/2,d1/d0);return}
+ P.set(e.pointerId,n);G.mv+=Math.abs(dx)+Math.abs(dy);const t=G.pan||G.pinch?'view':S.tool;
+ if(t==='move'){const l=S.L[S.act];l.pos.x+=dx/S.k;l.pos.y+=dy/S.k;G.moved=1;place(l);ov()}
+ else if(t==='crop'&&S.rb){S.rb[1]=wp(n);ov()}
+ else{S.tx+=dx;S.ty+=dy;viewChanged()}};
+stage.onpointerup=e=>{P.delete(e.pointerId);if(!G||P.size)return;const g=G;G=null;
+ if(g.moved){refresh(S.L[S.act]);ui()}
+ else if(S.rb)applyCrop();
+ else if(S.tool==='pts'&&g.mv<6&&!g.pan&&!g.pinch)addPt(wp([g.x,g.y]))};
+stage.onpointercancel=e=>{P.delete(e.pointerId);G=null;S.rb=null;ov()};
+stage.onwheel=e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,e.deltaY<0?1.15:1/1.15)};
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||$('#work').hidden)return;
+ if(e.code==='Space'){space=true;e.preventDefault();return}
+ const st=e.shiftKey?10:1,d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+ if(d){e.preventDefault();nudge(d[0]*st,d[1]*st)}else if(e.key==='1')sel(0);else if(e.key==='2')sel(1)});
+addEventListener('keyup',e=>{if(e.code==='Space')space=false});
+/* ---------- per-layer operations ---------- */
+function nudge(dx,dy){const l=S.L[S.act];l.pos.x+=dx/S.k;l.pos.y+=dy/S.k;refresh(l);ov()}
+function applyCrop(){const l=S.L[S.act],[a,b]=S.rb;S.rb=null;const inv=M(l,1,0,0,1).inverse(),p=inv.transformPoint(new DOMPoint(a[0],a[1])),q=inv.transformPoint(new DOMPoint(b[0],b[1])),
+ x0=Math.max(0,Math.min(p.x,q.x)),y0=Math.max(0,Math.min(p.y,q.y)),x1=Math.min(l.src.w,Math.max(p.x,q.x)),y1=Math.min(l.src.h,Math.max(p.y,q.y));
+ if(x1-x0<3||y1-y0<3){ov();return}l.crop=[x0,y0,x1-x0,y1-y0];refresh(l);setTool('move');ov()}
+const ops={r90:l=>l.rot+=90,r270:l=>l.rot-=90,rp:l=>l.rot+=.1,rm:l=>l.rot-=.1,
+ fh:l=>{l.fx*=-1;l.rot=-l.rot},fv:l=>{l.fy*=-1;l.rot=-l.rot},
+ L:()=>nudge(-1,0),R:()=>nudge(1,0),U:()=>nudge(0,-1),D:()=>nudge(0,1),
+ nocrop:l=>l.crop=null,crop:()=>setTool('crop'),
+ rs:l=>{const a=S.L[0].src,s=l.src;l.rot=0;l.fx=l.fy=1;l.crop=null;l.pos={x:a.w/2,y:a.h/2};const r=Math.min(a.w/s.w,a.h/s.h);l.sx=Math.abs(r-1)>.02?r:1}};
+function sel(i){S.act=i;S.pf=[];S.ps=0;ui();setTool(S.tool)}
+function cards(){$('#cards').innerHTML=S.L.map((l,i)=>`<section class="card" data-i="${i}"><header><span class="dot" style="background:${l.col}"></span><b>${NM[i]}</b><span class="fn">${l.src.name}</span><span class="tag">נבחרה</span></header>
+<div class="row"><label><input type="checkbox" data-f="vis" checked>הצג</label><input type="color" data-f="col" value="${l.col}"><input type="range" data-f="op" min=".1" max="1" step=".05" value="${l.op}"></div>
+<p class="sec">סיבוב והיפוך – רק לתוכנית הזו</p>
+<div class="row"><button data-a="r270">⟲ 90°</button><button data-a="r90">⟳ 90°</button><button data-a="fh">↔ היפוך</button><button data-a="fv">↕ היפוך</button></div>
+<div class="row"><label>°<input type="number" step=".1" data-f="rot"></label><label>%<input type="number" step=".1" data-f="sc"></label><button data-a="rm">−0.1°</button><button data-a="rp">+0.1°</button></div>
+<p class="sec">מיקום מדויק וחיתוך</p>
+<div class="row"><button data-a="L">←</button><button data-a="U">↑</button><button data-a="D">↓</button><button data-a="R">→</button><button data-a="crop">✂ חיתוך</button><button data-a="nocrop">בטל חיתוך</button><button data-a="rs">איפוס</button></div></section>`).join('');ui()}
+function ui(){$$('.card').forEach(c=>{const l=S.L[+c.dataset.i];c.classList.toggle('on',l.i===S.act);c.querySelector('[data-f=rot]').value=+l.rot.toFixed(2);c.querySelector('[data-f=sc]').value=+(l.sx*100).toFixed(2)});hint()}
+$('#cards').onclick=e=>{const c=e.target.closest('.card');if(!c)return;const i=+c.dataset.i,a=e.target.dataset.a;if(S.act!==i)sel(i);
+ if(a&&ops[a]){const l=S.L[i];ops[a](l);if(!'LRUD'.includes(a)&&a!=='crop'){refresh(l);ov();ui()}}};
+$('#cards').oninput=e=>{const c=e.target.closest('.card');if(!c)return;const l=S.L[+c.dataset.i],f=e.target.dataset.f;
+ if(f==='op'){l.op=+e.target.value;place(l)}else if(f==='vis'){l.vis=e.target.checked;place(l);ov()}};
+$('#cards').onchange=e=>{const c=e.target.closest('.card');if(!c)return;const l=S.L[+c.dataset.i],f=e.target.dataset.f,v=e.target.value;
+ if(f==='col'){l.col=v;refresh(l);ov()}else if(f==='rot'){l.rot=+v||0;refresh(l);ov()}else if(f==='sc'){l.sx=Math.max(.01,(+v||100)/100);refresh(l);ov()}};
+$('#tint').onchange=e=>{S.tint=e.target.checked;S.L.forEach(refresh)};
+/* ---------- tools ---------- */
+function setTool(t){S.tool=t;S.rb=null;if(t!=='pts'){S.pf=[];S.ps=0}$$('#tb [data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));stage.className='t-'+t;hint();ov()}
+function hint(){const n=NM[S.act],o=NM[1-S.act];$('#hint').textContent={
+ move:`גרור כדי להזיז רק את "${n}" · רווח / לחצן ימני / שתי אצבעות = הזזת תצוגה · חצים במקלדת = דיוק`,
+ view:'גרור כדי להזיז את התצוגה · גלגלת / צביטה = זום',
+ crop:`גרור מלבן על "${n}" כדי לחתוך רק אותה`,
+ pts:['לחץ על נקודה בולטת ב"'+o+'"','עכשיו לחץ על אותה נקודה ב"'+n+'" (היא תזוז אליה)','לדיוק בסיבוב וגודל: נקודה שנייה ב"'+o+'"','ואז אותה נקודה ב"'+n+'"'][S.ps]}[S.tool]}
+$$('#tb [data-t]').forEach(b=>b.onclick=()=>setTool(b.dataset.t));
+$('#fit').onclick=fit;$('#zi').onclick=()=>zoomAt(stage.clientWidth/2,stage.clientHeight/2,1.5);$('#zo').onclick=()=>zoomAt(stage.clientWidth/2,stage.clientHeight/2,1/1.5);
+$('#sbt').onclick=()=>$('#side').classList.toggle('open');
+function addPt(w){const l=S.L[S.act],p={x:w[0],y:w[1]};S.pf.push(p);
+ if(S.ps===1){const a=S.pf[0];l.pos.x+=a.x-p.x;l.pos.y+=a.y-p.y;S.pf=[a];refresh(l)}
+ else if(S.ps===3){const a=S.pf[0],f2=S.pf[1],vx=p.x-a.x,vy=p.y-a.y,wx=f2.x-a.x,wy=f2.y-a.y;
+  if(vx||vy){const s=Math.hypot(wx,wy)/Math.hypot(vx,vy),th=Math.atan2(wy,wx)-Math.atan2(vy,vx),c=Math.cos(th),sn=Math.sin(th),dx=l.pos.x-a.x,dy=l.pos.y-a.y;
+   l.pos={x:a.x+s*(c*dx-sn*dy),y:a.y+s*(sn*dx+c*dy)};l.rot+=th*180/Math.PI;l.sx*=s;refresh(l)}
+  S.pf=[];S.ps=0;setTool('move');ui();return}
+ S.ps++;hint();ov();ui()}
+let blk;$('#bl').onclick=e=>{const on=e.target.classList.toggle('on');clearInterval(blk);S.L[0].vis=S.L[1].vis=true;
+ if(on)blk=setInterval(()=>{S.L[1].vis=!S.L[1].vis;place(S.L[1])},700);else{place(S.L[0]);place(S.L[1])}};
+/* ---------- export (re-rendered at high resolution) ---------- */
+async function compose(k,tx,ty,W,H){const out=document.createElement('canvas');out.width=W;out.height=H;const x=out.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);
+ for(const l of S.L){if(!l.vis)continue;const c=document.createElement('canvas');c.width=W;c.height=H;await draw(l,c,k,tx,ty,1,S.tint);x.globalCompositeOperation='multiply';x.globalAlpha=l.op;x.drawImage(c,0,0)}return out}
+const lim=matchMedia('(max-width:800px)').matches?3500:6000;
+async function shot(full){$('#busy').hidden=false;await new Promise(r=>setTimeout(r,30));
+ try{if(full){const a=S.L[0].src,s=lim/Math.max(a.w,a.h);return await compose(s,0,0,Math.round(a.w*s),Math.round(a.h*s))}
+  const q=Math.min(4,lim/Math.max(stage.clientWidth,stage.clientHeight));return await compose(S.k*q,S.tx*q,S.ty*q,Math.round(stage.clientWidth*q),Math.round(stage.clientHeight*q))}
+ catch(x){alert('הייצוא נכשל: '+x.message)}finally{$('#busy').hidden=true}}
+const png=async full=>{const c=await shot(full);if(!c)return;c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='השוואה.png';a.click()})};
+$('#e1').onclick=()=>png(true);$('#e2').onclick=()=>png(false);
+$('#e3').onclick=async()=>{const c=await shot(true);if(!c)return;const im=new Image();im.src=c.toDataURL('image/png');$('#pa').innerHTML='';$('#pa').appendChild(im);await im.decode();print();setTimeout(()=>$('#pa').innerHTML='',1500)};
+if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script></body></html>
