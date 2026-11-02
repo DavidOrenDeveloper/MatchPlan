@@ -69,6 +69,37 @@ input[type=number]{width:72px;padding:6px 8px;border:1px solid var(--ln);border-
 #dlg h3{margin:0;font-size:18px}#rep{width:100%;height:260px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;direction:ltr;text-align:left;border:1px solid var(--ln);border-radius:10px;padding:8px}
 #upd{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:50;background:#0f172a;color:#fff;padding:10px 14px;border-radius:14px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 30px #0f172a60;max-width:94%}
 #upd button{padding:6px 12px}#upd .pri{padding:7px 14px;font-size:14px}
+
+:root{--ac:#6366f1;--acs:#eef2ff;--r:16px}
+body{background:#f6f7fb}button{border-radius:12px;font-weight:500}button:active{transform:scale(.97)}
+#home{max-width:820px;padding:56px 20px}
+#home h1{font-size:36px;background:linear-gradient(135deg,#4f46e5,#06b6d4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.drop{border-style:solid;border-color:#e8ebf3;box-shadow:0 1px 2px #0f172a0f,0 8px 24px #0f172a0a;border-radius:22px;padding:38px 18px}
+.drop:hover{transform:translateY(-2px);box-shadow:0 14px 34px #4f46e526;border-color:#a5b4fc}
+button.pri{background:linear-gradient(135deg,#6366f1,#4f46e5);box-shadow:0 8px 20px #4f46e540;border-radius:14px}
+#top{background:#ffffffd9;backdrop-filter:blur(10px);color:var(--ink);border-bottom:1px solid var(--ln);padding:8px 12px}
+#top button{background:#fff;border:1px solid var(--ln);color:var(--ink);padding:7px 11px;display:flex;align-items:center}#top button:hover{background:var(--acs)}
+#top button:disabled{opacity:.35;cursor:default;background:#fff}#top b{flex:none}
+.brand{display:flex;align-items:center;gap:9px;margin-inline-end:auto}.brand i{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#e5484d 50%,#1f7ae0 50%)}
+#tb{background:#ffffffeb;backdrop-filter:blur(12px);border:1px solid #e2e8f0;border-radius:20px;padding:6px;gap:2px;box-shadow:0 10px 40px #0f172a33;align-items:center}
+#tb button{display:flex;gap:6px;align-items:center;border-radius:13px;padding:9px;color:#334155}#tb button:hover{background:var(--acs)}
+#tb button.on{background:var(--ac);color:#fff;box-shadow:0 4px 12px #6366f155}
+#tb .sp{width:1px;height:24px;background:var(--ln);margin:0 4px}
+#tb input[type=color]{width:30px;height:30px;border:0;padding:0;background:none}
+#tb select{border:1px solid var(--ln);border-radius:10px;padding:5px;background:#fff}
+#side{background:#f6f7fb}
+.card,.box{border-radius:18px;box-shadow:0 1px 2px #0f172a0d,0 6px 20px #0f172a0a;border:1px solid #e8ebf3}
+.card.on{border:1px solid var(--ac);box-shadow:0 0 0 3px #6366f126,0 6px 20px #6366f11a}
+.row button{background:#f8fafc}.row button:hover{background:var(--acs)}
+#hint{background:#0f172ad9;backdrop-filter:blur(8px)}#dlg>div{border-radius:22px}
+@media(max-width:800px){#tb button span{display:none}}
+.sl{display:flex;flex-direction:column;gap:4px}.sh{display:flex;justify-content:space-between;font-weight:600;font-size:14px}.se{display:flex;justify-content:space-between;font-size:11px;color:var(--mut)}.sl .sec{margin:0}
+#lib{position:fixed;inset:0;background:#0f172a99;z-index:41;display:grid;place-items:center;padding:12px}
+#lib>div{background:#fff;border-radius:22px;padding:18px;width:min(680px,100%);max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:10px}#lib h3{margin:0;font-size:18px}
+.li{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--ln);border-radius:14px;background:#fff;flex-wrap:wrap}.li:hover{background:#f8fafc}
+.li .nm{flex:1;cursor:pointer;min-width:140px}.li small{color:var(--mut);display:block;overflow:hidden;text-overflow:ellipsis}.li button{padding:5px 9px;font-size:13px}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 18px;border-radius:99px;z-index:60;font-size:14px}
+@media(max-width:800px){#top button span{display:none}}
 </style></head><body>
 
 <section id="home"><button class="gear" id="hg">⚙ הגדרות</button>
@@ -77,24 +108,28 @@ input[type=number]{width:72px;padding:6px 8px;border:1px solid var(--ln);border-
 <label class="drop"><i style="background:#e5484d"></i><b>תוכנית קודמת</b><span id="nA">בחר קובץ…</span><input type="file" id="fA" accept=".pdf,image/*"><input type="number" id="pA" min="1" value="1" hidden></label>
 <label class="drop"><i style="background:#1f7ae0"></i><b>תוכנית חדשה</b><span id="nB">בחר קובץ…</span><input type="file" id="fB" accept=".pdf,image/*"><input type="number" id="pB" min="1" value="1" hidden></label>
 </div>
-<p id="err"></p><button id="go" class="pri">התחל השוואה</button><button id="resume" hidden style="margin-top:10px;width:100%;padding:12px"></button>
+<p id="err"></p><button id="go" class="pri">התחל השוואה</button><button id="resume" hidden style="margin-top:10px;width:100%;padding:12px"></button><button id="lbh" style="margin-top:10px;width:100%;padding:12px">📁 ההשוואות שלי (תיקיות ותתי־תיקיות)</button>
 </section>
 
 <section id="work" hidden>
-<div id="top"><button id="back">‹ חזרה</button><b>השוואת תוכניות</b><button class="gear">⚙ הגדרות</button><button id="sbt">שכבות</button></div>
+<div id="top"><button id="back" title="חזרה">‹</button><div class="brand"><i></i><b>השוואת תוכניות</b></div><button id="svb" title="שמור בספרייה"></button><button id="lbo" title="ההשוואות שלי"></button><button id="un" title="בטל (Ctrl+Z)" disabled></button><button id="re" title="שחזר (Ctrl+Y)" disabled></button><button class="gear" title="הגדרות">⚙</button><button id="sbt">שכבות</button></div>
 <div id="body">
 <div id="stage"><canvas id="dc" hidden></canvas><canvas id="ov"></canvas><div id="hint"></div>
-<div id="tb">
-<button data-t="move">הזז תוכנית</button><button data-t="view">הזז תצוגה</button><button data-t="crop">חיתוך</button><button data-t="pts">יישור בנקודות</button>
-<button id="fit">התאם</button><button id="zi">＋</button><button id="zo">－</button><button id="bl">הבהוב</button></div></div>
+<div id="tb"></div></div>
 <aside id="side"><section class="box"><label class="row"><input type="checkbox" id="cmp"><b>מצב השוואה – שלושה צבעים</b></label>
-<div id="cmpopts" hidden style="display:flex;flex-direction:column;gap:8px">
+<div id="cmpopts" hidden style="display:flex;flex-direction:column;gap:14px">
 <p class="sec">"רק בקודמת" ו"רק בחדשה" צבועים בצבעי הכרטיסים שלמטה. כאן בוחרים את צבע הקווים הזהים.</p>
 <label class="row">קווים זהים <input type="color" id="cc" value="#9ca3af"></label>
-<label class="sec">סבילות להבדלי עובי / הזזה קטנה: <b id="v1">1.5</b></label><input type="range" id="tol" min="0" max="5" step=".25" value="1.5">
-<label class="sec">סגירת פערים (קו מקוקו מול קו רציף): <b id="v2">3</b></label><input type="range" id="gap" min="0" max="8" step=".5" value="3">
-<label class="sec">התעלם משינויים קטנים מ־: <b id="v3">6</b></label><input type="range" id="mn" min="0" max="30" step="1" value="6">
-</div></section><div id="cards"></div>
+<label class="row">קנה מידה של התוכניות 1:<input type="number" id="sc" value="100" min="1" step="10"></label>
+<div class="sl"><div class="sh"><span>סבילות להבדלי עובי והזזה</span><b><span id="v1">5</span> ס״מ</b></div><p class="sec">קו שמוזז או עבה יותר עד המרחק הזה (במציאות) ייחשב אותו קו ולא שינוי.</p><input type="range" dir="ltr" id="tol" min="0" max="20" step=".5" value="5"><div class="se" dir="ltr"><span>0 · מחמיר, כל הבדל מסומן</span><span>20 · מתעלם מהבדלים גדולים</span></div></div>
+<div class="sl"><div class="sh"><span>איחוד פערים בקו</span><b><span id="v2">10</span> ס״מ</b></div><p class="sec">פער בתוך קו (למשל מקוקו מול קו רציף) עד האורך הזה ייחשב חלק מאותו קו.</p><input type="range" dir="ltr" id="gap" min="0" max="30" step="1" value="10"><div class="se" dir="ltr"><span>0 · כבוי</span><span>30 · מאחד פערים גדולים</span></div></div>
+<div class="sl"><div class="sh"><span>התעלמות משינויים קטנים</span><b><span id="v3">20</span> ס״מ</b></div><p class="sec">שינוי קצר מהאורך הזה לא יסומן (מסנן כתמים וקטעים זעירים).</p><input type="range" dir="ltr" id="mn" min="0" max="60" step="1" value="20"><div class="se" dir="ltr"><span>0 · מציג הכול</span><span>60 · מסתיר שינויים קטנים</span></div></div>
+</div></section>
+<section class="box"><b>הבהוב</b>
+<label class="sec">מצב ההבהוב</label><select id="bm" style="padding:8px;border-radius:10px;border:1px solid var(--ln)"><option value="diff">רק ההבדלים מהבהבים (האפור הזהה נשאר)</option><option value="ab">תוכנית אחת בכל פעם (בלי השוואה)</option></select>
+<div class="sl"><div class="sh"><span id="b1l">זמן הצגת ההבדלים</span><b><span id="b1v">0.8</span> שנ׳</b></div><input type="range" dir="ltr" id="bt1" min=".2" max="3" step=".1" value=".8"><div class="se" dir="ltr"><span>0.2 · מהיר</span><span>3 · איטי</span></div></div>
+<div class="sl"><div class="sh"><span id="b2l">זמן הסתרת ההבדלים</span><b><span id="b2v">0.8</span> שנ׳</b></div><input type="range" dir="ltr" id="bt2" min=".2" max="3" step=".1" value=".8"><div class="se" dir="ltr"><span>0.2 · מהיר</span><span>3 · איטי</span></div></div>
+<button id="bgo" class="pri" style="padding:10px 14px;font-size:14px">התחל הבהוב</button></section><div id="cards"></div>
 <label class="row"><input type="checkbox" id="tint" checked> צבע לכל תוכנית (כבוי = צבעי המקור)</label>
 <p class="sec">ייצוא (מרונדר מחדש ברזולוציה גבוהה)</p>
 <div class="exp"><button id="e1">PNG גיליון מלא</button><button id="e2">PNG התצוגה הנוכחית</button><button id="e3">הדפסה</button></div>
@@ -108,6 +143,7 @@ input[type=number]{width:72px;padding:6px 8px;border:1px solid var(--ln);border-
 <div class="row"><button id="dg">הרץ בדיקה</button><button id="cp" class="pri" style="padding:8px 14px;font-size:14px">העתק דוח</button><button id="cl">נקה יומן</button></div>
 <textarea id="rep" readonly></textarea><div id="cm" class="sec"></div></div>
 <button id="dx">סגור</button></div></div>
+<div id="lib" hidden><div><h3 id="lbt"></h3><div class="row" id="lbc"></div><div id="lbl" style="display:flex;flex-direction:column;gap:8px"></div><div class="row" id="lba"></div><button id="lbx">סגור</button></div></div><div id="toast" hidden></div>
 <div id="busy" hidden>מעבד…</div><div id="pa"></div>
 
 <script type="module">
@@ -115,7 +151,7 @@ import*as pdfjs from'./lib/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc=new URL('./lib/pdf.worker.min.mjs',import.meta.url).href;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],dpr=()=>devicePixelRatio||1,stage=$('#stage');
 const NM=['קודמת','חדשה'],COL=['#e5484d','#1f7ae0'];
-const S={L:[],act:1,tool:'move',k:1,tx:0,ty:0,tint:true,ps:0,pf:[],rb:null,cmp:false,dok:false,tol:1.5,gap:3,mn:6,cc:'#9ca3af'};
+const S={L:[],act:1,tool:'move',k:1,tx:0,ty:0,tint:true,ps:0,pf:[],rb:null,cmp:false,dok:false,ann:[],cur:null,ac:'#f59e0b',aw:4,tol:5,gap:10,mn:20,sc:100,cc:'#9ca3af',bk:null,t1:.8,t2:.8,cid:null};
 const F=[null,null];
 /* ---------- load files ---------- */
 const log=(t,e)=>window.__log(t,e&&e.stack?e.stack:e&&e.message?e.message:e);
@@ -130,20 +166,20 @@ async function mk(i,page){const o=F[i],s={name:o.file.name,pn:page};
  if(o.pdf){s.pdf=o.pdf;s.pg=await o.pdf.getPage(page);const v=s.pg.getViewport({scale:1});s.w=v.width;s.h=v.height}
  else{s.bmp=await createImageBitmap(o.file);s.w=s.bmp.width*.75;s.h=s.bmp.height*.75}return s}
 async function start(saved){if(!saved&&(!F[0]||!F[1])){$('#err').textContent='יש לבחור שתי תוכניות';return}
- $('#busy').hidden=false;const pg=i=>saved?saved.files[i].page:+$(i?'#pB':'#pA').value||1;
+ $('#busy').hidden=false;blinkStop();await LIBP;const pg=i=>saved?saved.files[i].page:+$(i?'#pB':'#pA').value||1;
  try{const a=await mk(0,Math.min(F[0].n||1,Math.max(1,pg(0)))),b=await mk(1,Math.min(F[1].n||1,Math.max(1,pg(1))));
   stage.querySelectorAll('.lc').forEach(c=>c.remove());S.L=[];
   [a,b].forEach((src,i)=>{const cv=document.createElement('canvas');cv.className='lc';stage.insertBefore(cv,$('#ov'));
    S.L.push({src,i,cv,pos:{x:a.w/2,y:a.h/2},rot:0,sx:1,fx:1,fy:1,crop:null,vis:true,col:COL[i],op:.9,tok:0,r:null})});
-  S.dok=false;S.pf=[];S.ps=0;
-  if(saved){saved.layers.forEach((p,i)=>Object.assign(S.L[i],p));Object.assign(S,saved.view,saved.opt,{act:saved.act,cmp:!!saved.cmp,tint:saved.tint!==false})}
-  else{const r=Math.min(a.w/b.w,a.h/b.h);if(r<.5||r>2)S.L[1].sx=r;S.act=1;S.cmp=false}
-  $('#cmp').checked=S.cmp;$('#cmpopts').hidden=!S.cmp;$('#tint').checked=S.tint;$('#cc').value=S.cc;
+  S.dok=false;S.pf=[];S.ps=0;S.cid=saved&&saved.cid&&LIB.i.some(x=>x.id===saved.cid)?saved.cid:null;
+  if(saved){saved.layers.forEach((p,i)=>Object.assign(S.L[i],p));Object.assign(S,saved.view,saved.opt,{act:saved.act,cmp:!!saved.cmp,ann:saved.ann||[],tint:saved.tint!==false})}
+  else{const r=Math.min(a.w/b.w,a.h/b.h);if(r<.5||r>2)S.L[1].sx=r;S.act=1;S.cmp=false;S.ann=[]}
+  $('#cmp').checked=S.cmp;$('#cmpopts').hidden=!S.cmp;$('#tint').checked=S.tint;$('#cc').value=S.cc;$('#sc').value=S.sc;
   [['tol','v1'],['gap','v2'],['mn','v3']].forEach(([k,v])=>{$('#'+k).value=S[k];$('#'+v).textContent=S[k]});
-  $('#home').hidden=true;$('#work').hidden=false;cards();size();if(!saved)fit();setTool('move');showMode()}
+  $('#home').hidden=true;$('#work').hidden=false;cards();size();if(!saved)fit();setTool('move');showMode();hInit()}
  catch(x){log('התחלה',x);$('#err').textContent='שגיאה: '+x.message}$('#busy').hidden=true}
 $('#go').onclick=()=>start();
-$('#back').onclick=()=>{clearInterval(blk);$('#work').hidden=true;$('#home').hidden=false};
+$('#back').onclick=()=>{blinkStop();saveNow();$('#work').hidden=true;$('#home').hidden=false};
 /* ---------- rendering (re-rendered from the vector at every zoom) ---------- */
 const M=(l,k=S.k,tx=S.tx,ty=S.ty,d=dpr())=>new DOMMatrix().translate(d*tx,d*ty).scale(d*k).translate(l.pos.x,l.pos.y).rotate(l.rot).scale(l.sx*l.fx,l.sx*l.fy).translate(-l.src.w/2,-l.src.h/2);
 async function draw(l,c,k,tx,ty,d,tint){const x=c.getContext('2d'),m=M(l,k,tx,ty,d);x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);
@@ -154,10 +190,9 @@ async function draw(l,c,k,tx,ty,d,tint){const x=c.getContext('2d'),m=M(l,k,tx,ty
 async function refresh(l){const t=++l.tok;l.task&&l.task.cancel();const d=dpr(),c=document.createElement('canvas'),W=Math.round(stage.clientWidth*d),H=Math.round(stage.clientHeight*d);
  if(!W||!H)return;c.width=W;c.height=H;const k=S.k,tx=S.tx,ty=S.ty,px=l.pos.x,py=l.pos.y;
  try{await draw(l,c,k,tx,ty,d,false)}catch(e){if(!/cancel/i.test(String(e&&(e.name||'')+(e.message||''))))log('ציור '+l.src.name,e);return}
- if(t!==l.tok)return;l.cv.width=W;l.cv.height=H;const x=l.cv.getContext('2d');x.drawImage(c,0,0);
- if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over'}
- l.raw=c;l.done=t;l.r={k,tx,ty,px,py};place(l);schedDiff();saveS()}
-function place(l){const r=l.r;l.cv.style.display=l.vis&&!(S.cmp&&S.dok)?'':'none';l.cv.style.opacity=l.op;if(!r)return;const f=S.k/r.k;
+ if(t!==l.tok)return;l.cv.width=W;l.cv.height=H;l.raw=c;paintL(l);l.done=t;l.r={k,tx,ty,px,py};place(l);schedDiff();saveS()}
+function paintL(l){const x=l.cv.getContext('2d');x.globalCompositeOperation='source-over';x.drawImage(l.raw,0,0);if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,l.raw.width,l.raw.height);x.globalCompositeOperation='source-over'}}
+function place(l){const r=l.r;const ab=S.bk&&S.bk.m==='ab';l.cv.style.display=ab?(l.i===S.bk.ph?'':'none'):(l.vis&&!(S.cmp&&S.dok)?'':'none');l.cv.style.opacity=l.op;if(!r)return;const f=S.k/r.k;
  l.cv.style.transform=`translate(${S.tx-f*r.tx+S.k*(l.pos.x-r.px)}px,${S.ty-f*r.ty+S.k*(l.pos.y-r.py)}px) scale(${f})`}
 let vt;const viewChanged=()=>{S.L.forEach(place);placeD();ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),120)};
 const all=()=>{S.L.forEach(refresh);ov();ui()};
@@ -172,6 +207,7 @@ function ov(){const c=$('#ov'),x=c.getContext('2d'),d=dpr();x.setTransform(d,0,0
   poly([pt(0,0),pt(s.w,0),pt(s.w,s.h),pt(0,s.h)],l.col+'66',1,[4,4]);
   if(l.crop){const[a,b,w,h]=l.crop;poly([pt(a,b),pt(a+w,b),pt(a+w,b+h),pt(a,b+h)],l.col,2,[8,5])}}
  if(S.rb){const[a,b]=S.rb,p=(u,v)=>({x:u*S.k+S.tx,y:v*S.k+S.ty});poly([p(a[0],a[1]),p(b[0],a[1]),p(b[0],b[1]),p(a[0],b[1])],COL[S.act],2,[6,4])}
+ annDraw(x,S.k,S.tx,S.ty,1,S.cur?S.ann.concat([S.cur]):S.ann);
  S.pf.forEach((q,i)=>{const X=q.x*S.k+S.tx,Y=q.y*S.k+S.ty;x.strokeStyle=COL[i%2===0?1-S.act:S.act];x.lineWidth=2;x.setLineDash([]);x.beginPath();x.arc(X,Y,9,0,7);x.moveTo(X-16,Y);x.lineTo(X+16,Y);x.moveTo(X,Y-16);x.lineTo(X,Y+16);x.stroke()})}
 /* ---------- interaction ---------- */
 const P=new Map();let G=null,space=false;
@@ -179,30 +215,38 @@ const wp=n=>[(n[0]-S.tx)/S.k,(n[1]-S.ty)/S.k],dist=(a,b)=>Math.hypot(a[0]-b[0],a
 stage.oncontextmenu=e=>e.preventDefault();
 stage.onpointerdown=e=>{if(e.target!==stage)return;stage.setPointerCapture(e.pointerId);P.set(e.pointerId,[e.offsetX,e.offsetY]);
  if(!G)G={x:e.offsetX,y:e.offsetY,mv:0,pan:e.button===1||e.button===2||space,pinch:false};if(P.size>1)G.pinch=true;
- if(S.tool==='crop'&&!G.pan&&!G.pinch)S.rb=[wp([e.offsetX,e.offsetY]),wp([e.offsetX,e.offsetY])]};
+ if(S.tool==='crop'&&!G.pan&&!G.pinch)S.rb=[wp([e.offsetX,e.offsetY]),wp([e.offsetX,e.offsetY])];
+ if(AT.includes(S.tool)&&!G.pan&&!G.pinch&&e.target===stage){const w=wp([e.offsetX,e.offsetY]);if(S.tool==='era'){if(eraseAt(e.offsetX,e.offsetY)){G.er=1;ov()}}else if(S.tool!=='txt')S.cur={t:S.tool,c:S.ac,w:S.aw,p:S.tool==='pen'?[w]:[w,w]}}};
 stage.onpointermove=e=>{if(!P.has(e.pointerId)||!G)return;const o=P.get(e.pointerId),n=[e.offsetX,e.offsetY],dx=n[0]-o[0],dy=n[1]-o[1];
  if(P.size===2){const[a,b]=[...P.values()],d0=dist(a,b);P.set(e.pointerId,n);const[a2,b2]=[...P.values()],d1=dist(a2,b2);S.rb=null;
   S.tx+=dx/2;S.ty+=dy/2;if(d0)zoomAt((a2[0]+b2[0])/2,(a2[1]+b2[1])/2,d1/d0);return}
  P.set(e.pointerId,n);G.mv+=Math.abs(dx)+Math.abs(dy);const t=G.pan||G.pinch?'view':S.tool;
  if(t==='move'){if(S.cmp&&S.dok){S.dok=false;showMode()}const l=S.L[S.act];l.pos.x+=dx/S.k;l.pos.y+=dy/S.k;G.moved=1;place(l);ov()}
  else if(t==='crop'&&S.rb){S.rb[1]=wp(n);ov()}
+ else if(S.cur&&t===S.cur.t){const w=wp(n);if(t==='pen')S.cur.p.push(w);else S.cur.p[1]=w;ov()}
+ else if(t==='era'){if(eraseAt(n[0],n[1])){G.er=1;ov()}}
  else{S.tx+=dx;S.ty+=dy;viewChanged()}};
 stage.onpointerup=e=>{P.delete(e.pointerId);if(!G||P.size)return;const g=G;G=null;
- if(g.moved){refresh(S.L[S.act]);ui()}
+ if(g.moved){refresh(S.L[S.act]);ui();commit()}
  else if(S.rb)applyCrop();
+ else if(S.cur){const a=S.cur,q=a.p;S.cur=null;if(a.t==='pen'?q.length>2:Math.hypot(q[1][0]-q[0][0],q[1][1]-q[0][1])*S.k>4)S.ann.push(a);commit();ov()}
+ else if(g.er){commit();ov()}
+ else if(S.tool==='txt'&&g.mv<6&&!g.pan&&!g.pinch){const t0=prompt('טקסט להצגה על התוכנית:');if(t0)S.ann.push({t:'txt',c:S.ac,w:S.aw,p:[wp([g.x,g.y])],s:t0});commit();ov()}
  else if(S.tool==='pts'&&g.mv<6&&!g.pan&&!g.pinch)addPt(wp([g.x,g.y]))};
 stage.onpointercancel=e=>{P.delete(e.pointerId);G=null;S.rb=null;ov()};
 stage.onwheel=e=>{e.preventDefault();zoomAt(e.offsetX,e.offsetY,e.deltaY<0?1.15:1/1.15)};
-addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||$('#work').hidden)return;
+addEventListener('keydown',e=>{if($('#work').hidden)return;
+ if((e.ctrlKey||e.metaKey)&&(e.code==='KeyZ'||e.code==='KeyY')&&!(e.target.tagName==='INPUT'&&/^(text|number)$/.test(e.target.type))){e.preventDefault();(e.code==='KeyY'||e.shiftKey)?redo():undo();return}
+ if(e.target.tagName==='INPUT')return;
  if(e.code==='Space'){space=true;e.preventDefault();return}
  const st=e.shiftKey?10:1,d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
  if(d){e.preventDefault();nudge(d[0]*st,d[1]*st)}else if(e.key==='1')sel(0);else if(e.key==='2')sel(1)});
 addEventListener('keyup',e=>{if(e.code==='Space')space=false});
 /* ---------- per-layer operations ---------- */
-function nudge(dx,dy){const l=S.L[S.act];l.pos.x+=dx/S.k;l.pos.y+=dy/S.k;refresh(l);ov()}
+function nudge(dx,dy){const l=S.L[S.act];l.pos.x+=dx/S.k;l.pos.y+=dy/S.k;refresh(l);ov();commitSoon()}
 function applyCrop(){const l=S.L[S.act],[a,b]=S.rb;S.rb=null;const inv=M(l,1,0,0,1).inverse(),p=inv.transformPoint(new DOMPoint(a[0],a[1])),q=inv.transformPoint(new DOMPoint(b[0],b[1])),
  x0=Math.max(0,Math.min(p.x,q.x)),y0=Math.max(0,Math.min(p.y,q.y)),x1=Math.min(l.src.w,Math.max(p.x,q.x)),y1=Math.min(l.src.h,Math.max(p.y,q.y));
- if(x1-x0<3||y1-y0<3){ov();return}l.crop=[x0,y0,x1-x0,y1-y0];refresh(l);setTool('move');ov()}
+ if(x1-x0<3||y1-y0<3){ov();return}l.crop=[x0,y0,x1-x0,y1-y0];refresh(l);commit();setTool('move');ov()}
 const ops={r90:l=>l.rot+=90,r270:l=>l.rot-=90,rp:l=>l.rot+=.1,rm:l=>l.rot-=.1,
  fh:l=>{l.fx*=-1;l.rot=-l.rot},fv:l=>{l.fy*=-1;l.rot=-l.rot},
  L:()=>nudge(-1,0),R:()=>nudge(1,0),U:()=>nudge(0,-1),D:()=>nudge(0,1),
@@ -217,36 +261,49 @@ function cards(){$('#cards').innerHTML=S.L.map((l,i)=>`<section class="card" dat
 <div class="row"><label>°<input type="number" step=".1" data-f="rot"></label><label>%<input type="number" step=".1" data-f="sc"></label><button data-a="rm">−0.1°</button><button data-a="rp">+0.1°</button></div>
 <p class="sec">מיקום מדויק וחיתוך</p>
 <div class="row"><button data-a="L">←</button><button data-a="U">↑</button><button data-a="D">↓</button><button data-a="R">→</button><button data-a="crop">✂ חיתוך</button><button data-a="nocrop">בטל חיתוך</button><button data-a="rs">איפוס</button></div><div class="row"><button data-a="fo">התאם גודל לשנייה (לפי רוחב)</button></div></section>`).join('');ui()}
-function ui(){$$('.card').forEach(c=>{const l=S.L[+c.dataset.i];c.classList.toggle('on',l.i===S.act);c.querySelector('[data-f=rot]').value=+l.rot.toFixed(2);c.querySelector('[data-f=sc]').value=+(l.sx*100).toFixed(2)});hint()}
+function ui(){$$('.card').forEach(c=>{const l=S.L[+c.dataset.i];c.classList.toggle('on',l.i===S.act);c.querySelector('[data-f=rot]').value=+l.rot.toFixed(2);c.querySelector('[data-f=col]').value=l.col;c.querySelector('[data-f=op]').value=l.op;c.querySelector('[data-f=vis]').checked=l.vis;c.querySelector('[data-f=sc]').value=+(l.sx*100).toFixed(2)});hint()}
 $('#cards').onclick=e=>{const c=e.target.closest('.card');if(!c)return;const i=+c.dataset.i,a=e.target.dataset.a;if(S.act!==i)sel(i);
- if(a&&ops[a]){const l=S.L[i];ops[a](l);if(!'LRUD'.includes(a)&&a!=='crop'){refresh(l);ov();ui()}}};
-$('#cards').oninput=e=>{const c=e.target.closest('.card');if(!c)return;const l=S.L[+c.dataset.i],f=e.target.dataset.f;
- if(f==='op'){l.op=+e.target.value;place(l)}else if(f==='vis'){l.vis=e.target.checked;place(l);ov()}};
-$('#cards').onchange=e=>{const c=e.target.closest('.card');if(!c)return;const l=S.L[+c.dataset.i],f=e.target.dataset.f,v=e.target.value;
- if(f==='col'){l.col=v;refresh(l);ov()}else if(f==='rot'){l.rot=+v||0;refresh(l);ov()}else if(f==='sc'){l.sx=Math.max(.01,(+v||100)/100);refresh(l);ov()}};
-$('#tint').onchange=e=>{S.tint=e.target.checked;S.L.forEach(refresh)};
+ if(a&&ops[a]){const l=S.L[i];ops[a](l);if(!'LRUD'.includes(a)&&a!=='crop'){refresh(l);ov();ui();commit()}}};
+$('#cards').oninput=e=>{const c=e.target.closest('.card');if(!c)return;const l=S.L[+c.dataset.i],f=e.target.dataset.f,v=e.target.value;
+ if(f==='op'){l.op=+v;place(l)}else if(f==='vis'){l.vis=e.target.checked;place(l);ov()}
+ else if(f==='col'){l.col=v;if(l.raw)paintL(l);ov();repaintDiff()}
+ else if(f==='rot'){l.rot=+v||0;refresh(l);ov()}else if(f==='sc'){l.sx=Math.max(.01,(+v||100)/100);refresh(l);ov()}};
+$('#cards').onchange=e=>{if(e.target.closest('.card'))commit()};
+$('#tint').onchange=e=>{S.tint=e.target.checked;S.L.forEach(l=>l.raw&&paintL(l));commit()};
 /* ---------- tools ---------- */
 function setTool(t){S.tool=t;S.rb=null;if(t!=='pts'){S.pf=[];S.ps=0}$$('#tb [data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));stage.className='t-'+t;hint();ov()}
 function hint(){const n=NM[S.act],o=NM[1-S.act];$('#hint').textContent={
  move:`גרור כדי להזיז רק את "${n}" · רווח / לחצן ימני / שתי אצבעות = הזזת תצוגה · חצים במקלדת = דיוק`,
  view:'גרור כדי להזיז את התצוגה · גלגלת / צביטה = זום',
  crop:`גרור מלבן על "${n}" כדי לחתוך רק אותה`,
- pts:['לחץ על נקודה בולטת ב"'+o+'"','עכשיו לחץ על אותה נקודה ב"'+n+'" (היא תזוז אליה)','לדיוק בסיבוב וגודל: נקודה שנייה ב"'+o+'"','ואז אותה נקודה ב"'+n+'"'][S.ps]}[S.tool]}
+ pts:['לחץ על נקודה בולטת ב"'+o+'"','עכשיו לחץ על אותה נקודה ב"'+n+'" (היא תזוז אליה)','לדיוק בסיבוב וגודל: נקודה שנייה ב"'+o+'"','ואז אותה נקודה ב"'+n+'"'][S.ps]}[S.tool]||'סימון: גרור לציור על התוכניות · בכלי המחק לחץ על סימון להסרה'}
+/* ---------- toolbar ---------- */
+const IC=d=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const TL=[['move','הזז תוכנית אחת','<path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/>','תוכנית'],
+ ['view','הזז תצוגה','<path d="M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v6M10 10.5V6a2 2 0 0 0-4 0v8M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-5.9-2.4L3.4 16a2 2 0 0 1 3.2-2.4L8 15"/>','תצוגה'],
+ ['crop','חיתוך התוכנית שנבחרה','<path d="M6 2v14a2 2 0 0 0 2 2h14M18 22V8a2 2 0 0 0-2-2H2"/>','חיתוך'],
+ ['pts','יישור בנקודות','<circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>','יישור'],null,
+ ['rect','מלבן','<rect x="4" y="5" width="16" height="14" rx="1.5"/>'],['ell','עיגול','<circle cx="12" cy="12" r="8"/>'],['line','קו','<path d="M5 19L19 5"/>'],['arr','חץ','<path d="M5 19L19 5M9 5h10v10"/>'],
+ ['pen','עט חופשי','<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'],['txt','טקסט','<path d="M4 7V5h16v2M9 19h6M12 5v14"/>'],['era','מחק סימון','<path d="M20 20H9L3.6 14.6a2 2 0 0 1 0-2.8l8.2-8.2a2 2 0 0 1 2.8 0l5.8 5.8a2 2 0 0 1 0 2.8L12 20"/>']];
+$('#tb').innerHTML=TL.map(t=>t?`<button data-t="${t[0]}" title="${t[1]}">${IC(t[2])}${t[3]?`<span>${t[3]}</span>`:''}</button>`:'<i class="sp"></i>').join('')
+ +'<input type="color" id="ac" value="#f59e0b" title="צבע סימון"><select id="aw" title="עובי סימון"><option value="2">דק</option><option value="4" selected>בינוני</option><option value="7">עבה</option></select><i class="sp"></i>'
+ +[['fit','התאם למסך','<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>'],['zi','הגדל','<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/>'],['zo','הקטן','<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3M8 11h6"/>'],['bl','הבהוב בין הגרסאות','<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>']].map(t=>`<button id="${t[0]}" title="${t[1]}">${IC(t[2])}</button>`).join('');
+$('#ac').oninput=e=>S.ac=e.target.value;$('#aw').onchange=e=>S.aw=+e.target.value;
+$('#un').innerHTML=IC('<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 13"/>');$('#re').innerHTML=IC('<path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 15-6.7L21 13"/>');
+$('#un').onclick=undo;$('#re').onclick=redo;
 $$('#tb [data-t]').forEach(b=>b.onclick=()=>setTool(b.dataset.t));
 $('#fit').onclick=fit;$('#zi').onclick=()=>zoomAt(stage.clientWidth/2,stage.clientHeight/2,1.5);$('#zo').onclick=()=>zoomAt(stage.clientWidth/2,stage.clientHeight/2,1/1.5);
 $('#sbt').onclick=()=>$('#side').classList.toggle('open');
 function addPt(w){const l=S.L[S.act],p={x:w[0],y:w[1]};S.pf.push(p);
- if(S.ps===1){const a=S.pf[0];l.pos.x+=a.x-p.x;l.pos.y+=a.y-p.y;S.pf=[a];refresh(l)}
+ if(S.ps===1){const a=S.pf[0];l.pos.x+=a.x-p.x;l.pos.y+=a.y-p.y;S.pf=[a];refresh(l);commit()}
  else if(S.ps===3){const a=S.pf[0],f2=S.pf[1],vx=p.x-a.x,vy=p.y-a.y,wx=f2.x-a.x,wy=f2.y-a.y;
   if(vx||vy){const s=Math.hypot(wx,wy)/Math.hypot(vx,vy),th=Math.atan2(wy,wx)-Math.atan2(vy,vx),c=Math.cos(th),sn=Math.sin(th),dx=l.pos.x-a.x,dy=l.pos.y-a.y;
-   l.pos={x:a.x+s*(c*dx-sn*dy),y:a.y+s*(sn*dx+c*dy)};l.rot+=th*180/Math.PI;l.sx*=s;refresh(l)}
+   l.pos={x:a.x+s*(c*dx-sn*dy),y:a.y+s*(sn*dx+c*dy)};l.rot+=th*180/Math.PI;l.sx*=s;refresh(l);commit()}
   S.pf=[];S.ps=0;setTool('move');ui();return}
  S.ps++;hint();ov();ui()}
-let blk;$('#bl').onclick=e=>{const on=e.target.classList.toggle('on');clearInterval(blk);S.L[0].vis=S.L[1].vis=true;
- if(on)blk=setInterval(()=>{S.L[1].vis=!S.L[1].vis;place(S.L[1])},700);else{place(S.L[0]);place(S.L[1])}};
+
 /* ---------- compare mode: 3 colours (only previous / only new / same) ---------- */
 const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
-function ink(c){const W=c.width,H=c.height,d=c.getContext('2d').getImageData(0,0,W,H).data,m=new Uint8Array(W*H);for(let i=0,j=0;j<m.length;i+=4,j++)m[j]=d[i]+d[i+1]+d[i+2]<705?1:0;return m}
 function win(m,W,H,r,e){if(r<1)return m;const v0=e?1:0,n=2*r+1,t=new Uint8Array(W*H),o=new Uint8Array(W*H);
  for(let y=0;y<H;y++){const b=y*W;let c=0;for(let i=-r;i<=r;i++)c+=i<0||i>=W?v0:m[b+i];
   for(let x=0;x<W;x++){t[b+x]=e?(c===n?1:0):(c>0?1:0);const a=x+r+1,q=x-r;c+=(a>=W?v0:m[b+a])-(q<0?v0:m[b+q])}}
@@ -261,28 +318,70 @@ function despeck(m,W,H,minPx){if(minPx<2)return m;const dm=win(m,W,H,2),seen=new
    if(p>=W&&dm[p-W]&&!seen[p-W]){seen[p-W]=1;st[sp++]=p-W}if(p+W<dm.length&&dm[p+W]&&!seen[p+W]){seen[p+W]=1;st[sp++]=p+W}}
   if(n<minPx)for(let i=0;i<bn;i++)m[buf[i]]=0}
  return m}
-/* s = pixels per sheet unit; tolerance/gap/min-size are given in sheet units so they behave the same at any zoom */
-function diffCanvas(ca,cb,s){const W=ca.width,H=ca.height,A=ink(ca),B=ink(cb),r=v=>Math.min(30,Math.round(v*s)),g=Math.ceil(r(S.gap)/2),t=Math.max(S.tol>0?1:0,r(S.tol));
+function dark(c){const W=c.width,H=c.height,d=c.getContext('2d').getImageData(0,0,W,H).data,m=new Uint8Array(W*H);for(let i=0,j=0;j<m.length;i+=4,j++)m[j]=255-((d[i]+d[i+1]+d[i+2])/3|0);return m}
+function bin(d){const m=new Uint8Array(d.length);for(let i=0;i<d.length;i++)m[i]=d[i]>20?1:0;return m}
+function grow(seed,mask,W,H,n){let c=seed;for(let i=0;i<Math.min(n,12);i++){const d=win(c,W,H,1),o=new Uint8Array(W*H);for(let k=0;k<o.length;k++)o[k]=d[k]&&mask[k]?1:0;c=o}return c}
+/* s = pixels per sheet unit; tolerance / gap / min-size are in sheet units so they behave the same at any zoom */
+function diffMasks(ca,cb,s){const W=ca.width,H=ca.height,n=W*H,dA=dark(ca),dB=dark(cb),A=bin(dA),B=bin(dB),f=28.346/(S.sc||100),r=v=>Math.min(30,Math.round(v*f*s)),g=Math.ceil(r(S.gap)/2),t=Math.max(S.tol>0?1:0,r(S.tol));
  let Ac=A,Bc=B;if(g>0){Ac=win(win(A,W,H,g),W,H,g,1);Bc=win(win(B,W,H,g),W,H,g,1)}
- const Ad=win(Ac,W,H,t),Bd=win(Bc,W,H,t),R=new Uint8Array(W*H),D=new Uint8Array(W*H);
- for(let i=0;i<R.length;i++){R[i]=A[i]&&!Bd[i]?1:0;D[i]=B[i]&&!Ad[i]?1:0}
- const mn=Math.round(S.mn*s*2);despeck(R,W,H,mn);despeck(D,W,H,mn);
- const Rv=win(R,W,H,1),Dv=win(D,W,H,1),out=new ImageData(W,H),o=out.data,c1=rgb(S.L[0].col),c2=rgb(S.L[1].col),c3=rgb(S.cc);
- for(let i=0,j=0;i<A.length;i++,j+=4){const p=Rv[i]?c1:Dv[i]?c2:(A[i]||B[i])?c3:null;
-  if(p){o[j]=p[0];o[j+1]=p[1];o[j+2]=p[2]}else{o[j]=o[j+1]=o[j+2]=255}o[j+3]=255}
+ const Ad=win(Ac,W,H,t),Bd=win(Bc,W,H,t);let R=new Uint8Array(n),D=new Uint8Array(n);
+ for(let i=0;i<n;i++){R[i]=A[i]&&!Bd[i]?1:0;D[i]=B[i]&&!Ad[i]?1:0}
+ const mn=Math.round(S.mn*f*s*2);despeck(R,W,H,mn);despeck(D,W,H,mn);
+ /* a stroke that crosses an unchanged line stays whole: grow real changes back along ink that is not exactly on the other drawing */
+ if(t>1){const A1=win(A,W,H,1),B1=win(B,W,H,1),MR=new Uint8Array(n),MD=new Uint8Array(n);for(let i=0;i<n;i++){MR[i]=A[i]&&!B1[i]?1:0;MD[i]=B[i]&&!A1[i]?1:0}R=grow(R,MR,W,H,t);D=grow(D,MD,W,H,t)}
+ const bridge=(M,Src)=>{const o=M.slice();for(let y=3;y<H-3;y++)for(let x=3;x<W-3;x++){const i=y*W+x;if(M[i]||!Src[i])continue;if(((M[i-1]||M[i-2]||M[i-3])&&(M[i+1]||M[i+2]||M[i+3]))||((M[i-W]||M[i-2*W]||M[i-3*W])&&(M[i+W]||M[i+2*W]||M[i+3*W])))o[i]=1}return o};
+ R=bridge(R,A);D=bridge(D,B);
+ return{W,H,dA,dB,R,D}}
+/* keeps the original anti-aliasing (coverage), so lines stay as thin and crisp as in the plain overlay */
+function diffPaint(m){const{W,H,dA,dB,R,D}=m,out=new ImageData(W,H),o=out.data,c1=rgb(S.L[0].col),c2=rgb(S.L[1].col),c3=rgb(S.cc),hid=S.bk&&S.bk.m==='diff'&&S.bk.ph===1;
+ for(let i=0,j=0;i<R.length;i+=1,j+=4){let c,v;if(R[i]||D[i]){if(hid){o[j]=o[j+1]=o[j+2]=255;o[j+3]=255;continue}if(R[i]){c=c1;v=dA[i]}else{c=c2;v=dB[i]}}else{c=c3;v=dA[i]>dB[i]?dA[i]:dB[i];if(v<=20)v=0}
+  v=Math.min(255,v*1.35)/255;o[j]=255-(255-c[0])*v;o[j+1]=255-(255-c[1])*v;o[j+2]=255-(255-c[2])*v;o[j+3]=255}
  const c=document.createElement('canvas');c.width=W;c.height=H;c.getContext('2d').putImageData(out,0,0);return c}
 function placeD(){const r=S.dr;if(!r)return;const f=S.k/r.k;$('#dc').style.transform=`translate(${S.tx-f*r.tx}px,${S.ty-f*r.ty}px) scale(${f})`}
-function showMode(){$('#dc').hidden=!(S.cmp&&S.dok);S.L.forEach(place)}
+function showMode(){$('#dc').hidden=!(S.cmp&&S.dok&&!(S.bk&&S.bk.m==='ab'));S.L.forEach(place)}
 function diff(){try{diff0()}catch(e){log('השוואה',e)}}
 function diff0(){const a=S.L[0],b=S.L[1];if(!S.cmp||!a.raw||!b.raw||a.raw.width!==b.raw.width)return;
- const c=diffCanvas(a.raw,b.raw,Math.max(a.r.k,b.r.k)*dpr()),dc=$('#dc');dc.width=c.width;dc.height=c.height;dc.getContext('2d').drawImage(c,0,0);
- S.dr={k:a.r.k,tx:a.r.tx,ty:a.r.ty};S.dok=true;placeD();showMode()}
+ S.dm=diffMasks(a.raw,b.raw,Math.max(a.r.k,b.r.k)*dpr());S.dr={k:a.r.k,tx:a.r.tx,ty:a.r.ty};repaintDiff();S.dok=true;placeD();showMode()}
+function repaintDiff(){if(!S.dm||!S.cmp)return;const c=diffPaint(S.dm),dc=$('#dc');dc.width=c.width;dc.height=c.height;dc.getContext('2d').drawImage(c,0,0)}
 let sdt;function schedDiff(){if(!S.cmp)return;clearTimeout(sdt);sdt=setTimeout(()=>{if(S.L.every(l=>l.raw&&l.done===l.tok))diff()},40)}
-$('#cmp').onchange=e=>{S.cmp=e.target.checked;S.dok=false;$('#cmpopts').hidden=!S.cmp;showMode();if(S.cmp)schedDiff()};
-[['tol','v1'],['gap','v2'],['mn','v3']].forEach(([k,v])=>{const el=$('#'+k);el.oninput=()=>{S[k]=+el.value;$('#'+v).textContent=el.value};el.onchange=()=>{S.dok=false;showMode();schedDiff()}});
-$('#cc').onchange=e=>{S.cc=e.target.value;schedDiff()};
+$('#cmp').onchange=e=>{S.cmp=e.target.checked;S.dok=false;$('#cmpopts').hidden=!S.cmp;showMode();if(S.cmp)schedDiff();commit()};
+[['tol','v1'],['gap','v2'],['mn','v3']].forEach(([k,v])=>{const el=$('#'+k);el.oninput=()=>{S[k]=+el.value;$('#'+v).textContent=el.value;schedDiff()};el.onchange=()=>commit()});
+$('#sc').oninput=e=>{S.sc=+e.target.value||100;schedDiff()};$('#sc').onchange=()=>commit();$('#cc').oninput=e=>{S.cc=e.target.value;repaintDiff()};$('#cc').onchange=()=>commit();
+/* ---------- undo / redo ---------- */
+const H={u:[],r:[],cur:''};
+const hs=()=>JSON.stringify({L:S.L.map(l=>({pos:l.pos,rot:l.rot,sx:l.sx,fx:l.fx,fy:l.fy,crop:l.crop,vis:l.vis,col:l.col,op:l.op})),ann:S.ann,cmp:S.cmp,tint:S.tint,o:[S.tol,S.gap,S.mn,S.cc,S.act,S.sc]});
+function hInit(){H.u=[];H.r=[];H.cur=hs();updUR()}
+function commit(){if(!S.L.length)return;const n=hs();if(n===H.cur)return;H.u.push(H.cur);if(H.u.length>150)H.u.shift();H.r=[];H.cur=n;updUR();saveS()}
+let cst;function commitSoon(){clearTimeout(cst);cst=setTimeout(commit,350)}
+function updUR(){$('#un').disabled=!H.u.length;$('#re').disabled=!H.r.length}
+function hApply(js){const s=JSON.parse(js);s.L.forEach((p,i)=>Object.assign(S.L[i],p));S.ann=s.ann;S.cmp=s.cmp;S.tint=s.tint;[S.tol,S.gap,S.mn,S.cc,S.act,S.sc]=s.o;$('#sc').value=S.sc;
+ $('#cmp').checked=S.cmp;$('#cmpopts').hidden=!S.cmp;$('#tint').checked=S.tint;$('#cc').value=S.cc;[['tol','v1'],['gap','v2'],['mn','v3']].forEach(([k,v])=>{$('#'+k).value=S[k];$('#'+v).textContent=S[k]});
+ S.dok=false;S.pf=[];S.ps=0;showMode();S.L.forEach(refresh);ov();ui();saveS()}
+function undo(){clearTimeout(cst);commit();if(!H.u.length)return;H.r.push(H.cur);H.cur=H.u.pop();hApply(H.cur);updUR()}
+function redo(){clearTimeout(cst);if(!H.r.length)return;H.u.push(H.cur);H.cur=H.r.pop();hApply(H.cur);updUR()}
+/* ---------- annotations (rect / ellipse / line / arrow / pen / text / eraser) ---------- */
+const AT=['rect','ell','line','arr','pen','txt','era'];
+function annDraw(x,k,tx,ty,ws,list){for(const a of list){x.save();x.globalCompositeOperation='source-over';x.globalAlpha=1;x.strokeStyle=x.fillStyle=a.c;x.lineWidth=a.w*ws;x.lineCap=x.lineJoin='round';
+ const P=a.p.map(q=>[q[0]*k+tx,q[1]*k+ty]),p0=P[0],p1=P[P.length-1];x.beginPath();
+ if(a.t==='rect')x.rect(p0[0],p0[1],p1[0]-p0[0],p1[1]-p0[1]);
+ else if(a.t==='ell')x.ellipse((p0[0]+p1[0])/2,(p0[1]+p1[1])/2,Math.abs(p1[0]-p0[0])/2,Math.abs(p1[1]-p0[1])/2,0,0,7);
+ else if(a.t==='line'||a.t==='arr'){x.moveTo(p0[0],p0[1]);x.lineTo(p1[0],p1[1])}
+ else if(a.t==='pen')P.forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));
+ if(a.t==='txt'){x.font=`700 ${(14+a.w*1.5)*ws}px system-ui,Arial`;x.direction='ltr';x.textAlign='left';x.lineWidth=3*ws;x.strokeStyle='#fff';x.strokeText(a.s,p0[0],p0[1]);x.fillText(a.s,p0[0],p0[1])}else x.stroke();
+ if(a.t==='arr'){const an=Math.atan2(p1[1]-p0[1],p1[0]-p0[0]),h=(10+a.w*2.5)*ws;x.beginPath();x.moveTo(p1[0],p1[1]);x.lineTo(p1[0]-h*Math.cos(an-.45),p1[1]-h*Math.sin(an-.45));x.lineTo(p1[0]-h*Math.cos(an+.45),p1[1]-h*Math.sin(an+.45));x.closePath();x.fill()}
+ x.restore()}}
+function dseg(x,y,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/l)):0;return Math.hypot(x-a[0]-t*dx,y-a[1]-t*dy)}
+function eraseAt(px,py){const k=S.k;let best=-1,bd=12;
+ S.ann.forEach((a,i)=>{const P=a.p.map(q=>[q[0]*k+S.tx,q[1]*k+S.ty]);let sg=[];
+  if(a.t==='rect'){const[p,q]=P;sg=[[p,[q[0],p[1]]],[[q[0],p[1]],q],[q,[p[0],q[1]]],[[p[0],q[1]],p]]}
+  else if(a.t==='ell'){const[p,q]=[P[0],P[P.length-1]],cx=(p[0]+q[0])/2,cy=(p[1]+q[1])/2,rx=Math.abs(q[0]-p[0])/2,ry=Math.abs(q[1]-p[1])/2;let pr=null;for(let j=0;j<=36;j++){const u=j/36*6.2832,c=[cx+rx*Math.cos(u),cy+ry*Math.sin(u)];if(pr)sg.push([pr,c]);pr=c}}
+  else if(a.t==='txt'){const w=a.s.length*10,p=P[0];sg=[[[p[0],p[1]-8],[p[0]+w,p[1]-8]],[p,[p[0]+w,p[1]]]]}
+  else for(let j=1;j<P.length;j++)sg.push([P[j-1],P[j]]);
+  for(const[s0,s1]of sg){const d=dseg(px,py,s0,s1);if(d<bd){bd=d;best=i}}});
+ if(best>=0){S.ann.splice(best,1);return true}return false}
 /* ---------- export (re-rendered at high resolution) ---------- */
-async function compose(k,tx,ty,W,H){if(S.cmp){const cs=[];for(const l of S.L){const c=document.createElement('canvas');c.width=W;c.height=H;await draw(l,c,k,tx,ty,1,false);cs.push(c)}return diffCanvas(cs[0],cs[1],k)}
+async function compose(k,tx,ty,W,H){const o=await compose0(k,tx,ty,W,H);annDraw(o.getContext('2d'),k,tx,ty,Math.min(6,Math.max(1,k/S.k)),S.ann);return o}
+async function compose0(k,tx,ty,W,H){if(S.cmp){const cs=[];for(const l of S.L){const c=document.createElement('canvas');c.width=W;c.height=H;await draw(l,c,k,tx,ty,1,false);cs.push(c)}return diffPaint(diffMasks(cs[0],cs[1],k))}
  const out=document.createElement('canvas');out.width=W;out.height=H;const x=out.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);
  for(const l of S.L){if(!l.vis)continue;const c=document.createElement('canvas');c.width=W;c.height=H;await draw(l,c,k,tx,ty,1,S.tint);x.globalCompositeOperation='multiply';x.globalAlpha=l.op;x.drawImage(c,0,0)}return out}
 const lim0=matchMedia('(max-width:800px)').matches?3500:6000,LIM=()=>S.cmp?Math.min(lim0,4000):lim0;
@@ -294,12 +393,12 @@ const png=async full=>{const c=await shot(full);if(!c)return;c.toBlob(b=>{const 
 $('#e1').onclick=()=>png(true);$('#e2').onclick=()=>png(false);
 $('#e3').onclick=async()=>{const c=await shot(true);if(!c)return;const im=new Image();im.src=c.toDataURL('image/png');$('#pa').innerHTML='';$('#pa').appendChild(im);await im.decode();print();setTimeout(()=>$('#pa').innerHTML='',1500)};
 /* ---------- version / update / persistence / diagnostics ---------- */
-const VER='2.1.1';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
+const VER='2.3.0';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
 const DBo=()=>new Promise((res,rej)=>{const r=indexedDB.open('matchplan',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
-async function idb(m,k,v){const d=await DBo();return new Promise((res,rej)=>{const t=d.transaction('p',m==='get'?'readonly':'readwrite'),st=t.objectStore('p'),q=m==='get'?st.get(k):st.put(v,k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
-const snap=()=>({files:F.map((o,i)=>({file:o.file,page:S.L[i].src.pn})),layers:S.L.map(l=>({pos:l.pos,rot:l.rot,sx:l.sx,fx:l.fx,fy:l.fy,crop:l.crop,vis:l.vis,col:l.col,op:l.op})),view:{k:S.k,tx:S.tx,ty:S.ty},act:S.act,cmp:S.cmp,tint:S.tint,opt:{tol:S.tol,gap:S.gap,mn:S.mn,cc:S.cc},t:Date.now()});
+async function idb(m,k,v){const d=await DBo();return new Promise((res,rej)=>{const t=d.transaction('p',m==='get'?'readonly':'readwrite'),st=t.objectStore('p'),q=m==='get'?st.get(k):m==='del'?st.delete(k):st.put(v,k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
+const snap=()=>({files:F.map((o,i)=>({file:o.file,page:S.L[i].src.pn})),layers:S.L.map(l=>({pos:l.pos,rot:l.rot,sx:l.sx,fx:l.fx,fy:l.fy,crop:l.crop,vis:l.vis,col:l.col,op:l.op})),view:{k:S.k,tx:S.tx,ty:S.ty},act:S.act,cmp:S.cmp,ann:S.ann,tint:S.tint,opt:{tol:S.tol,gap:S.gap,mn:S.mn,cc:S.cc,sc:S.sc},cid:S.cid,t:Date.now()});
 let svt;function saveS(){if(!S.L.length)return;clearTimeout(svt);svt=setTimeout(saveNow,800)}
-async function saveNow(){if(!S.L.length||$('#work').hidden)return;try{await idb('put','last',snap())}catch(e){log('שמירת פרויקט',e)}}
+async function saveNow(){if(!S.L.length||$('#work').hidden)return;try{const sn=snap();await idb('put','last',sn);if(S.cid){await idb('put','c:'+S.cid,sn);const it=LIB.i.find(x=>x.id===S.cid);if(it){it.t=Date.now();await libSave()}}}catch(e){log('שמירת פרויקט',e)}}
 addEventListener('pagehide',saveNow);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveNow()});
 async function resume(){if(!LAST)return;$('#err').textContent='';try{for(let i=0;i<2;i++)await setF(i,LAST.files[i].file,LAST.files[i].page);await start(LAST)}catch(e){$('#err').textContent='לא ניתן לשחזר את הפרויקט: '+e.message}}
 $('#resume').onclick=resume;
@@ -340,5 +439,58 @@ $$('.gear').forEach(b=>b.onclick=()=>{$('#dlg').hidden=false;refreshReport()});$
 $('#dg').onclick=async()=>{$('#dg').textContent='בודק…';await diagnose();$('#dg').textContent='הרץ בדיקה'};
 $('#cl').onclick=()=>{window.__L.length=0;DIAG='';refreshReport()};
 $('#cp').onclick=async()=>{refreshReport();const r=$('#rep');try{await navigator.clipboard.writeText(r.value)}catch(e){r.select();document.execCommand('copy')}$('#cm').textContent='הדוח הועתק – הדבק אותו בשיחה ✔'};
+/* ---------- blink: (1) only the differences blink, grey stays; (2) one plan at a time ---------- */
+function bLabels(){const d=$('#bm').value==='diff';$('#b1l').textContent=d?'זמן הצגת ההבדלים':'זמן הצגת התוכנית הקודמת';$('#b2l').textContent=d?'זמן הסתרת ההבדלים':'זמן הצגת התוכנית החדשה'}
+function blinkStart(){blinkStop();const m=$('#bm').value;S.bk={m,ph:0};
+ if(m==='diff'&&!S.cmp){S.cmp=true;$('#cmp').checked=true;$('#cmpopts').hidden=false;S.dok=false;schedDiff()}
+ $('#bl').classList.add('on');$('#bgo').textContent='עצור הבהוב';tick()}
+function tick(){if(!S.bk)return;if(S.bk.m==='diff')repaintDiff();showMode();S.bt=setTimeout(()=>{if(!S.bk)return;S.bk.ph^=1;tick()},(S.bk.ph?S.t2:S.t1)*1000)}
+function blinkStop(){clearTimeout(S.bt);const was=S.bk;S.bk=null;$('#bl').classList.remove('on');$('#bgo').textContent='התחל הבהוב';if(was){repaintDiff();showMode()}}
+$('#bgo').onclick=$('#bl').onclick=()=>S.bk?blinkStop():blinkStart();
+$('#bm').onchange=()=>{bLabels();if(S.bk)blinkStart()};
+$('#bt1').oninput=e=>{S.t1=+e.target.value;$('#b1v').textContent=e.target.value};$('#bt2').oninput=e=>{S.t2=+e.target.value;$('#b2v').textContent=e.target.value};
+/* ---------- library: folders, sub-folders, saved comparisons ---------- */
+let LIB={f:[],i:[]};const LB={cwd:null,mode:'browse',mv:null};
+const LIBP=idb('get','lib').then(v=>{if(v)LIB=v}).catch(e=>log('ספרייה',e));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6),libSave=()=>idb('put','lib',LIB);
+function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,2200)}
+function fdesc(id){const r=[id];LIB.f.filter(x=>x.p===id).forEach(x=>r.push(...fdesc(x.id)));return r}
+async function openLib(mode){await LIBP;LB.mode=mode;LB.mv=null;if(!LIB.f.find(x=>x.id===LB.cwd))LB.cwd=null;$('#lib').hidden=false;lbRender()}
+function lbRender(){const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),path=[];let c=LB.cwd;
+ while(c){const f=LIB.f.find(x=>x.id===c);if(!f)break;path.unshift(f);c=f.p}
+ $('#lbt').textContent={browse:'ההשוואות שלי',save:'שמירה בספרייה – בחר תיקייה ולחץ "שמור כאן"',move:'העברה – בחר תיקיית יעד ולחץ "העבר לכאן"'}[LB.mode];
+ $('#lbc').innerHTML='<button data-a="go" data-id="">🏠 ראשי</button>'+path.map(f=>`<span>›</span><button data-a="go" data-id="${f.id}">${esc(f.n)}</button>`).join('');
+ const mvf=LB.mv&&LB.mv.k==='f'?fdesc(LB.mv.id):[],fs=LIB.f.filter(x=>x.p===LB.cwd&&!mvf.includes(x.id)),is=LB.mode==='browse'?LIB.i.filter(x=>x.p===LB.cwd):[],full=LB.mode==='browse',
+  cnt=id=>{const d=fdesc(id);return LIB.i.filter(x=>d.includes(x.p)).length};
+ $('#lbl').innerHTML=fs.map(f=>`<div class="li"><span>📁</span><div class="nm" data-a="go" data-id="${f.id}"><b>${esc(f.n)}</b><small>${cnt(f.id)} השוואות</small></div>${full?`<button data-a="ren" data-k="f" data-id="${f.id}">שנה שם</button><button data-a="mv" data-k="f" data-id="${f.id}">העבר</button><button data-a="del" data-k="f" data-id="${f.id}">מחק</button>`:''}</div>`).join('')
+  +is.map(it=>`<div class="li"><span>📄</span><div class="nm" data-a="open" data-id="${it.id}"><b>${esc(it.n)}${S.cid===it.id?' (פתוחה)':''}</b><small>${esc((it.fn||[]).join(' + '))} · ${new Date(it.t).toLocaleString('he-IL')}</small></div><button data-a="ren" data-k="i" data-id="${it.id}">שנה שם</button><button data-a="mv" data-k="i" data-id="${it.id}">העבר</button><button data-a="del" data-k="i" data-id="${it.id}">מחק</button></div>`).join('')
+  ||'';
+ if(!fs.length&&!is.length)$('#lbl').innerHTML='<p class="sec">'+(full?'אין כאן עדיין תיקיות או השוואות.':'אין תיקיות משנה כאן.')+'</p>';
+ const open=S.L.length&&!$('#work').hidden;
+ $('#lba').innerHTML='<button data-a="nf">＋ תיקייה חדשה</button>'+(LB.mode==='move'?'<button class="pri" style="padding:8px 14px;font-size:14px" data-a="mh">העבר לכאן</button><button data-a="cm">ביטול</button>':(LB.mode==='save'||open)?'<button class="pri" style="padding:8px 14px;font-size:14px" data-a="sv">שמור כאן'+(LB.mode==='browse'?' את ההשוואה הנוכחית':'')+'</button>':'')}
+$('#lib').onclick=async e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,id=b.dataset.id||null,k=b.dataset.k;
+ try{
+  if(a==='go')LB.cwd=id;
+  else if(a==='nf'){const n=prompt('שם התיקייה:');if(!n||!n.trim())return;LIB.f.push({id:uid(),n:n.trim(),p:LB.cwd});await libSave()}
+  else if(a==='ren'){const o=(k==='f'?LIB.f:LIB.i).find(x=>x.id===id),n=prompt('שם חדש:',o.n);if(!n||!n.trim())return;o.n=n.trim();await libSave()}
+  else if(a==='del'){if(k==='f'){const ids=fdesc(id),its=LIB.i.filter(x=>ids.includes(x.p));if(!confirm(`למחוק את התיקייה ואת כל מה שבתוכה (${its.length} השוואות)?`))return;
+    for(const it of its)await idb('del','c:'+it.id);if(its.some(x=>x.id===S.cid))S.cid=null;LIB.i=LIB.i.filter(x=>!ids.includes(x.p));LIB.f=LIB.f.filter(x=>!ids.includes(x.id));if(ids.includes(LB.cwd))LB.cwd=null}
+   else{const it=LIB.i.find(x=>x.id===id);if(!confirm('למחוק את "'+it.n+'"?'))return;await idb('del','c:'+id);if(S.cid===id)S.cid=null;LIB.i=LIB.i.filter(x=>x.id!==id)}await libSave()}
+  else if(a==='mv'){LB.mode='move';LB.mv={k,id};LB.cwd=null}
+  else if(a==='mh'){const o=(LB.mv.k==='f'?LIB.f:LIB.i).find(x=>x.id===LB.mv.id);o.p=LB.cwd;await libSave();LB.mode='browse';LB.mv=null}
+  else if(a==='cm'){LB.mode='browse';LB.mv=null}
+  else if(a==='sv'){const n=prompt('שם ההשוואה:',F.map(o=>o.file.name.replace(/\.[^.]+$/,'')).join(' מול '));if(!n||!n.trim())return;await saveToLib(n.trim(),LB.cwd);LB.mode='browse'}
+  else if(a==='open'){await openItem(id);return}
+ }catch(x){log('ספרייה',x);toast('הפעולה נכשלה – ראה דוח אבחון')}
+ lbRender()};
+$('#lbx').onclick=()=>$('#lib').hidden=true;
+async function saveToLib(n,p){const id=uid();S.cid=id;LIB.i.push({id,n,p,t:Date.now(),fn:F.map(o=>o.file.name)});await libSave();await idb('put','c:'+id,snap());toast('נשמר בספרייה ✔')}
+async function openItem(id){const v=await idb('get','c:'+id);if(!v){toast('הפריט לא נמצא');return}
+ if(S.L.length&&!$('#work').hidden){if(S.cid)await saveNow();else if(!confirm('ההשוואה הנוכחית לא נשמרה בספרייה. לעבור בכל זאת?'))return}
+ v.cid=id;LAST=v;$('#lib').hidden=true;await resume()}
+$('#svb').innerHTML=IC('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>')+'<span style="margin-inline-start:6px">שמור</span>';
+$('#lbo').innerHTML=IC('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>')+'<span style="margin-inline-start:6px">ספרייה</span>';
+$('#svb').onclick=async()=>{if(S.cid){await saveNow();toast('עודכן בספרייה ✔')}else openLib('save')};
+$('#lbo').onclick=()=>openLib('browse');$('#lbh').onclick=()=>openLib('browse');
 if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(e=>log('Service Worker',e)));
 </script></body></html>
