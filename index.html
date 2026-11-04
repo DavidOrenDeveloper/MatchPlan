@@ -318,8 +318,16 @@ function diffPaint(m){const{W,H,dA,dB,R,D}=m,out=new ImageData(W,H),o=out.data,c
 function placeD(){const r=S.dr;if(!r)return;const f=S.k/r.k;$('#dc').style.transform=`translate(${S.tx-f*r.tx}px,${S.ty-f*r.ty}px) scale(${f})`}
 function showMode(){$('#dc').hidden=!(S.cmp&&S.dok&&!(S.bk&&S.bk.m==='ab'));S.L.forEach(place)}
 function diff(){try{diff0()}catch(e){log('השוואה',e)}}
+let DW=null,DQ=0,DP=null;
 function diff0(){const a=S.L[0],b=S.L[1];if(!S.cmp||!a.raw||!b.raw||a.raw.width!==b.raw.width)return;
- S.dm=diffMasks(a.raw,b.raw,Math.max(a.r.k,b.r.k)*dpr());S.dr={k:a.r.k,tx:a.r.tx,ty:a.r.ty};repaintDiff();S.dok=true;placeD();showMode()}
+ const sc=Math.max(a.r.k,b.r.k)*dpr(),dr={k:a.r.k,tx:a.r.tx,ty:a.r.ty};
+ if(DW===false){S.dm=diffMasks(a.raw,b.raw,sc);S.dr=dr;repaintDiff();S.dok=true;placeD();showMode();return}
+ try{if(!DW){DW=new Worker('js/diff-worker.js');DW.onmessage=e=>{const d=e.data;if(!DP||d.q!==DP.q)return;if(d.err){log('השוואה',d.err);return}
+   S.dm={W:DP.W,H:DP.H,dA:DP.dA,dB:DP.dB,R:d.R,D:d.D};S.dr=DP.dr;DP=null;repaintDiff();S.dok=true;placeD();showMode()};
+  DW.onerror=()=>{DW=false;DP=null;schedDiff()}}
+  const W=a.raw.width,H=a.raw.height,dA=dark(a.raw),dB=dark(b.raw);DP={q:++DQ,W,H,dA,dB,dr};
+  DW.postMessage({q:DP.q,dA,dB,W,H,f:28.346/(S.sc||100),s:sc,gap:S.gap,tol:S.tol,mn:S.mn})}
+ catch(e){DW=false;log('השוואה',e);schedDiff()}}
 function repaintDiff(){if(!S.dm||!S.cmp)return;const c=diffPaint(S.dm),dc=$('#dc');dc.width=c.width;dc.height=c.height;dc.getContext('2d').drawImage(c,0,0)}
 let sdt;function schedDiff(){if(!S.cmp)return;clearTimeout(sdt);sdt=setTimeout(()=>{if(S.L.every(l=>l.raw&&l.done===l.tok))diff()},40)}
 $('#cmp').onchange=e=>{S.cmp=e.target.checked;S.dok=false;$('#cmpopts').hidden=!S.cmp;showMode();if(S.cmp)schedDiff();commit()};
@@ -371,7 +379,7 @@ const png=async full=>{const c=await shot(full);if(!c)return;c.toBlob(b=>{const 
 $('#e1').onclick=()=>png(true);$('#e2').onclick=()=>png(false);
 $('#e3').onclick=async()=>{const c=await shot(true);if(!c)return;const im=new Image();im.src=c.toDataURL('image/png');$('#pa').innerHTML='';$('#pa').appendChild(im);await im.decode();print();setTimeout(()=>$('#pa').innerHTML='',1500)};
 /* ---------- version / update / persistence / diagnostics ---------- */
-const VER='2.4.0';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
+const VER='2.5.0';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
 const DBo=()=>new Promise((res,rej)=>{const r=indexedDB.open('matchplan',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 async function idb(m,k,v){const d=await DBo();return new Promise((res,rej)=>{const t=d.transaction('p',m==='get'?'readonly':'readwrite'),st=t.objectStore('p'),q=m==='get'?st.get(k):m==='del'?st.delete(k):st.put(v,k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
 const snap=()=>({files:F.map((o,i)=>({file:o.file,page:S.L[i].src.pn})),layers:S.L.map(l=>({pos:l.pos,rot:l.rot,sx:l.sx,fx:l.fx,fy:l.fy,crop:l.crop,vis:l.vis,col:l.col,op:l.op})),view:{k:S.k,tx:S.tx,ty:S.ty},act:S.act,cmp:S.cmp,ann:S.ann,tint:S.tint,opt:{tol:S.tol,gap:S.gap,mn:S.mn,cc:S.cc,sc:S.sc},cid:S.cid,t:Date.now()});
