@@ -107,6 +107,8 @@ input[type=color]{width:38px;height:32px;padding:2px;border:1px solid var(--ln);
 <div id="dlg" hidden><div><h3>הגדרות</h3>
 <div class="box"><b>צבעי ברירת מחדל</b><p class="sec">חלים על כל השוואה חדשה. השוואות שמורות ושחזור פרויקט שומרים את הצבעים שלהם.</p>
 <div class="pfg"><label class="row">תוכנית קודמת <input type="color" id="pf0"></label><label class="row">תוכנית חדשה <input type="color" id="pf1"></label><label class="row">קווים זהים <input type="color" id="pfc"></label><label class="row">צבע סימון <input type="color" id="pfa"></label></div>
+<label class="row"><input type="checkbox" id="pfk"> רינדור מהיר: מטמון ותמונת רקע בזמן תנועה</label>
+<label class="row"><input type="checkbox" id="pfp"> רינדור מראש של אזורים סמוכים כשאני לא זז (זיכרון גבוה יותר)</label>
 <div class="row"><button id="pfr">אדום חדש · כחול ישן</button><button id="pfs">החלף בין הצבעים</button><button id="pfd">איפוס</button></div></div>
 <div class="box"><b>עדכון</b><div>גרסה נוכחית: <b id="sv"></b> · אחרונה בשרת: <b id="lv">—</b></div><div id="um" class="sec"></div>
 <div class="row"><button id="bu">בדוק עדכון</button><button id="ub2" class="pri" style="padding:8px 14px;font-size:14px" hidden>עדכן עכשיו</button></div>
@@ -122,10 +124,12 @@ input[type=color]{width:38px;height:32px;padding:2px;border:1px solid var(--ln);
 import*as pdfjs from'./lib/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc=new URL('./lib/pdf.worker.min.mjs',import.meta.url).href;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],dpr=()=>devicePixelRatio||1,stage=$('#stage');
-const PD={c0:'#1f7ae0',c1:'#e5484d',cc:'#9ca3af',ac:'#f59e0b'};let PF={...PD};try{Object.assign(PF,JSON.parse(localStorage.getItem('mp-pf')||'{}'))}catch(e){}
+const PD={c0:'#1f7ae0',c1:'#e5484d',cc:'#9ca3af',ac:'#f59e0b',cache:true,pre:true};let PF={...PD};try{Object.assign(PF,JSON.parse(localStorage.getItem('mp-pf')||'{}'))}catch(e){}
 const NM=['קודמת','חדשה'],COL=[PF.c0,PF.c1];
-function applyPF(){COL[0]=PF.c0;COL[1]=PF.c1;const r=document.documentElement.style;r.setProperty('--c0',PF.c0);r.setProperty('--c1',PF.c1);[['pf0','c0'],['pf1','c1'],['pfc','cc'],['pfa','ac']].forEach(([i,k])=>$('#'+i).value=PF[k]);try{localStorage.setItem('mp-pf',JSON.stringify(PF))}catch(e){}}
+function applyPF(){COL[0]=PF.c0;COL[1]=PF.c1;const r=document.documentElement.style;r.setProperty('--c0',PF.c0);r.setProperty('--c1',PF.c1);[['pf0','c0'],['pf1','c1'],['pfc','cc'],['pfa','ac']].forEach(([i,k])=>$('#'+i).value=PF[k]);$('#pfk').checked=PF.cache!==false;$('#pfp').checked=PF.pre!==false;try{localStorage.setItem('mp-pf',JSON.stringify(PF))}catch(e){}}
 applyPF();[['pf0','c0'],['pf1','c1'],['pfc','cc'],['pfa','ac']].forEach(([i,k])=>$('#'+i).oninput=e=>{PF[k]=e.target.value;applyPF()});
+$('#pfk').onchange=e=>{PF.cache=e.target.checked;applyPF();S.L.forEach(l=>{l.hist=[];l.pxy=null;l.raw&&comp(l)})};
+$('#pfp').onchange=e=>{PF.pre=e.target.checked;applyPF();S.L.forEach(l=>{if(!PF.pre)l.hist=[];l.raw&&comp(l)})};
 $('#pfr').onclick=()=>{PF.c0=PD.c0;PF.c1=PD.c1;applyPF()};$('#pfs').onclick=()=>{[PF.c0,PF.c1]=[PF.c1,PF.c0];applyPF()};$('#pfd').onclick=()=>{PF={...PD};applyPF()};
 const S={L:[],act:1,tool:'move',k:1,tx:0,ty:0,tint:true,ps:0,pf:[],rb:null,cmp:false,dok:false,ann:[],cur:null,ac:'#f59e0b',aw:4,tol:5,gap:10,mn:20,sc:100,cc:'#9ca3af',bk:null,t1:.8,t2:.8,cid:null};
 const F=[null,null];
@@ -166,11 +170,44 @@ async function draw(l,c,k,tx,ty,d,tint){const x=c.getContext('2d'),m=M(l,k,tx,ty
 async function refresh(l){const t=++l.tok,t0=performance.now();l.task&&l.task.cancel();const d=dpr(),c=document.createElement('canvas'),W=Math.round(stage.clientWidth*d),H=Math.round(stage.clientHeight*d);
  if(!W||!H)return;c.width=W;c.height=H;const k=S.k,tx=S.tx,ty=S.ty,px=l.pos.x,py=l.pos.y;
  try{await draw(l,c,k,tx,ty,d,false)}catch(e){if(!/cancel/i.test(String(e&&(e.name||'')+(e.message||''))))log('ציור '+l.src.name,e);return}
- if(t!==l.tok)return;l.cv.width=W;l.cv.height=H;l.raw=c;paintL(l);l.done=t;l.ms=performance.now()-t0;l.r={k,tx,ty,px,py};place(l);schedDiff();saveS()}
-function paintL(l){const x=l.cv.getContext('2d');x.globalCompositeOperation='source-over';x.drawImage(l.raw,0,0);if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,l.raw.width,l.raw.height);x.globalCompositeOperation='source-over'}}
+ if(t!==l.tok)return;const sg=sigOf(l),ch=l.sig!==sg,lim=PF.cache===false||MOB?0:(PF.pre!==false?(W*H>4e6?2:5):(W*H>4e6?1:3));
+ if(ch){l.sig=sg;l.hist=[];l.pxy=null}
+ else if(lim&&l.raw&&l.r)(l.hist=l.hist||[]).push({c:l.raw,r:l.r});
+ l.hist=lim?(l.hist||[]).filter(h=>Math.abs(h.r.k/k-1)<.005).slice(-lim):[];
+ l.raw=c;l.done=t;l.ms=performance.now()-t0;l.r={k,tx,ty,px,py};compNow(l);place(l);schedDiff();saveS();idleProxy(l)}
+/* ---------- fast display: low-res page underlay + last sharp renders, composited on one canvas ---------- */
+const MOB=matchMedia('(max-width:800px)').matches||navigator.maxTouchPoints>0;
+const sigOf=l=>[l.src.name,l.rot,l.sx,l.fx,l.fy,l.crop].join('|');
+function compNow(l){if(!l.raw||!l.r)return;const d=dpr(),W=Math.round(stage.clientWidth*d),H=Math.round(stage.clientHeight*d);if(!W||!H)return;
+ if(l.cv.width!==W||l.cv.height!==H){l.cv.width=W;l.cv.height=H}
+ const x=l.cv.getContext('2d');x.globalCompositeOperation='source-over';x.fillStyle='#fff';x.fillRect(0,0,W,H);
+ const put=(c,r)=>{const f=S.k/r.k;x.drawImage(c,(S.tx-f*r.tx+S.k*(l.pos.x-r.px))*d,(S.ty-f*r.ty+S.k*(l.pos.y-r.py))*d,c.width*f,c.height*f)};
+ if(l.pxy&&l.pr)put(l.pxy,l.pr);(l.hist||[]).forEach(h=>put(h.c,h.r));put(l.raw,l.r);
+ if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over'}}
+function comp(l){if(l.cq)return;l.cq=requestAnimationFrame(()=>{l.cq=0;compNow(l)})}
+function idleProxy(l){if(PF.cache===false||MOB)return;clearTimeout(l.pt);
+ l.pt=setTimeout(async()=>{if(l.done!==l.tok||G)return;const t=l.tok,sg=l.sig,d=dpr(),a=S.L[0].src,w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
+  const ok=()=>t===l.tok&&sg===l.sig&&!G;
+  if(!(l.pxy&&l.psig===sg)){const k=Math.min(w/a.w,h/a.h)*.94,tx=(w-a.w*k)/2,ty=(h-a.h*k)/2,c=document.createElement('canvas');c.width=Math.round(w*d);c.height=Math.round(h*d);
+   l.px=true;try{await draw(l,c,k,tx,ty,d,false)}catch(e){l.px=false;return}l.px=false;
+   if(!ok())return;l.pxy=c;l.pr={k,tx,ty,px:l.pos.x,py:l.pos.y};l.psig=sg;comp(l)}
+  if(PF.pre===false||!l.r)return;
+  /* neighbouring screens, rendered one at a time on the same pixel grid; stops as soon as the view moves */
+  const r0=l.r,x0=S.tx,y0=S.ty,x1=x0+a.w*S.k,y1=y0+a.h*S.k,W=Math.round(w*d),H=Math.round(h*d),lim=W*H>4e6?2:5;
+  for(const[dx,dy]of[[w,0],[-w,0],[0,h],[0,-h]]){
+   if(!ok()||l.r!==r0)return;
+   if(!(dx<x1&&dx+w>x0&&dy<y1&&dy+h>y0))continue;
+   const nt=r0.tx-dx,nu=r0.ty-dy;
+   if((l.hist||[]).some(q=>Math.abs(q.r.k/r0.k-1)<.005&&Math.abs(q.r.tx-nt)<1&&Math.abs(q.r.ty-nu)<1))continue;
+   const c=document.createElement('canvas');c.width=W;c.height=H;
+   l.px=true;try{await draw(l,c,r0.k,nt,nu,d,false)}catch(e){l.px=false;return}l.px=false;
+   if(!ok()||l.r!==r0)return;
+   l.hist=[...(l.hist||[]),{c,r:{k:r0.k,tx:nt,ty:nu,px:r0.px,py:r0.py}}].slice(-lim);comp(l)}},1200)}
+function paintL(l){comp(l)}
+function paintL0(l){const x=l.cv.getContext('2d');x.globalCompositeOperation='source-over';x.drawImage(l.raw,0,0);if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,l.raw.width,l.raw.height);x.globalCompositeOperation='source-over'}}
 function place(l){const r=l.r;const ab=S.bk&&S.bk.m==='ab';l.cv.style.display=ab?(l.i===S.bk.ph?'':'none'):(l.vis&&!(S.cmp&&S.dok)?'':'none');l.cv.style.opacity=l.op;if(!r)return;const f=S.k/r.k;
- l.cv.style.transform=`translate(${S.tx-f*r.tx+S.k*(l.pos.x-r.px)}px,${S.ty-f*r.ty+S.k*(l.pos.y-r.py)}px) scale(${f})`}
-let vt;const viewChanged=()=>{S.L.forEach(place);placeD();ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),Math.min(450,Math.max(120,1.5*Math.max(0,...S.L.map(l=>l.ms||0)))))};
+ l.cv.style.transform='none';comp(l)}
+let vt;const viewChanged=()=>{S.L.forEach(l=>{clearTimeout(l.pt);if(l.px&&l.task)l.task.cancel()});S.L.forEach(place);placeD();ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),Math.min(450,Math.max(120,1.5*Math.max(0,...S.L.map(l=>l.ms||0)))))};
 const all=()=>{S.L.forEach(refresh);ov();ui()};
 function size(){const d=dpr(),c=$('#ov');c.width=stage.clientWidth*d;c.height=stage.clientHeight*d;if(S.L.length)all()}
 new ResizeObserver(()=>{if(!$('#work').hidden)size()}).observe(stage);
@@ -379,7 +416,7 @@ const png=async full=>{const c=await shot(full);if(!c)return;c.toBlob(b=>{const 
 $('#e1').onclick=()=>png(true);$('#e2').onclick=()=>png(false);
 $('#e3').onclick=async()=>{const c=await shot(true);if(!c)return;const im=new Image();im.src=c.toDataURL('image/png');$('#pa').innerHTML='';$('#pa').appendChild(im);await im.decode();print();setTimeout(()=>$('#pa').innerHTML='',1500)};
 /* ---------- version / update / persistence / diagnostics ---------- */
-const VER='2.5.0';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
+const VER='2.7.0';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
 const DBo=()=>new Promise((res,rej)=>{const r=indexedDB.open('matchplan',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 async function idb(m,k,v){const d=await DBo();return new Promise((res,rej)=>{const t=d.transaction('p',m==='get'?'readonly':'readwrite'),st=t.objectStore('p'),q=m==='get'?st.get(k):m==='del'?st.delete(k):st.put(v,k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
 const snap=()=>({files:F.map((o,i)=>({file:o.file,page:S.L[i].src.pn})),layers:S.L.map(l=>({pos:l.pos,rot:l.rot,sx:l.sx,fx:l.fx,fy:l.fy,crop:l.crop,vis:l.vis,col:l.col,op:l.op})),view:{k:S.k,tx:S.tx,ty:S.ty},act:S.act,cmp:S.cmp,ann:S.ann,tint:S.tint,opt:{tol:S.tol,gap:S.gap,mn:S.mn,cc:S.cc,sc:S.sc},cid:S.cid,t:Date.now()});
