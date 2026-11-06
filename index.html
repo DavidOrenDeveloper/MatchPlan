@@ -102,7 +102,7 @@ button.x{min-width:40px;min-height:40px;padding:0;border-radius:50%;font-size:18
 <div class="sl"><div class="sh"><span>התעלמות משינויים קטנים</span><b><span id="v3">20</span> ס״מ</b></div><p class="sec">שינוי קצר מהאורך הזה לא יסומן (מסנן כתמים וקטעים זעירים).</p><input type="range" dir="ltr" id="mn" min="0" max="60" step="1" value="20"><div class="se" dir="ltr"><span>0 · מציג הכול</span><span>60 · מסתיר שינויים קטנים</span></div></div>
 </div></section>
 <section class="box"><b>הבהוב</b>
-<label class="sec">מצב ההבהוב</label><select id="bm" style="padding:8px;border-radius:10px;border:1px solid var(--ln)"><option value="diff">רק ההבדלים מהבהבים (האפור הזהה נשאר)</option><option value="ab">תוכנית אחת בכל פעם (בלי השוואה)</option></select>
+<label class="sec">מצב ההבהוב</label><select id="bm" style="padding:8px;border-radius:10px;border:1px solid var(--ln)"><option value="swap">ההבדלים מתחלפים: קודמת ↔ חדשה (האפור נשאר)</option><option value="diff">רק ההבדלים מהבהבים (האפור הזהה נשאר)</option><option value="ab">תוכנית אחת בכל פעם (בלי השוואה)</option></select>
 <div class="sl"><div class="sh"><span id="b1l">זמן הצגת ההבדלים</span><b><span id="b1v">0.8</span> שנ׳</b></div><input type="range" dir="ltr" id="bt1" min=".2" max="3" step=".1" value=".8"><div class="se" dir="ltr"><span>0.2 · מהיר</span><span>3 · איטי</span></div></div>
 <div class="sl"><div class="sh"><span id="b2l">זמן הסתרת ההבדלים</span><b><span id="b2v">0.8</span> שנ׳</b></div><input type="range" dir="ltr" id="bt2" min=".2" max="3" step=".1" value=".8"><div class="se" dir="ltr"><span>0.2 · מהיר</span><span>3 · איטי</span></div></div>
 <button id="bgo" class="pri" style="padding:10px 14px;font-size:14px">התחל הבהוב</button></section><div id="cards"></div>
@@ -177,45 +177,49 @@ async function draw(l,c,k,tx,ty,d,tint){const x=c.getContext('2d'),m=M(l,k,tx,ty
 async function refresh(l){const t=++l.tok,t0=performance.now();l.task&&l.task.cancel();const d=dpr(),c=document.createElement('canvas'),W=Math.round(stage.clientWidth*d),H=Math.round(stage.clientHeight*d);
  if(!W||!H)return;c.width=W;c.height=H;const k=S.k,tx=S.tx,ty=S.ty,px=l.pos.x,py=l.pos.y;
  try{await draw(l,c,k,tx,ty,d,false)}catch(e){if(!/cancel/i.test(String(e&&(e.name||'')+(e.message||''))))log('ציור '+l.src.name,e);return}
- if(t!==l.tok)return;const sg=sigOf(l),ch=l.sig!==sg,lim=CLIM(W,H);
- if(ch){l.sig=sg;l.hist=[];l.pxy=null}
- else if(lim&&l.raw&&l.r)(l.hist=l.hist||[]).push({c:l.raw,r:l.r});
- l.hist=lim?(l.hist||[]).filter(h=>Math.abs(h.r.k/k-1)<.005).slice(-lim):[];
+ if(t!==l.tok)return;const sg=sigOf(l),ch=l.sig!==sg,lim=CLIM(W,H),ro=l.raw;
+ if(ch){l.sig=sg;(l.hist||[]).forEach(q=>rel(q.c));l.hist=[];rel(l.pxy);l.pxy=null}
+ else if(lim&&ro&&l.r)(l.hist=l.hist||[]).push({c:ro,r:l.r});
+ trimHist(l,k,lim,ro);
  l.raw=c;l.done=t;l.ms=performance.now()-t0;l.r={k,tx,ty,px,py};compNow(l);place(l);schedDiff();saveS();idleProxy(l)}
 /* ---------- fast display: low-res page underlay + last sharp renders, composited on one canvas ---------- */
 let LD={x:null,y:null,dx:0,dy:0};const MOB=matchMedia('(max-width:800px)').matches||navigator.maxTouchPoints>0;
 const CLIM=(W,H)=>PF.cache===false?0:(W*H>4e6?(PF.pre!==false?2:1):MOB?(PF.pre!==false?4:2):(PF.pre!==false?5:3));
 const sigOf=l=>[l.src.name,l.rot,l.sx,l.fx,l.fy,l.crop].join('|');
+const rel=c=>{if(c)c.width=c.height=0};
+function trimHist(l,k,lim,ro){const old=l.hist||[],bud=MOB?6e6:2e7,h=lim?old.filter(q=>Math.abs(q.r.k/k-1)<.005).slice(-lim):[],keep=[];let tot=0;
+ for(let i=h.length-1;i>=0;i--){tot+=h[i].c.width*h[i].c.height;if(tot>bud)break;keep.unshift(h[i])}
+ old.forEach(q=>{if(!keep.includes(q))rel(q.c)});l.hist=keep;if(ro&&!keep.some(q=>q.c===ro))rel(ro)}
 function compNow(l){if(!l.raw||!l.r)return;const d=dpr(),W=Math.round(stage.clientWidth*d),H=Math.round(stage.clientHeight*d);if(!W||!H)return;
  if(l.cv.width!==W||l.cv.height!==H){l.cv.width=W;l.cv.height=H}
  const x=l.cv.getContext('2d');x.globalCompositeOperation='source-over';x.fillStyle='#fff';x.fillRect(0,0,W,H);
- const put=(c,r)=>{const f=S.k/r.k;x.drawImage(c,(S.tx-f*r.tx+S.k*(l.pos.x-r.px))*d,(S.ty-f*r.ty+S.k*(l.pos.y-r.py))*d,c.width*f,c.height*f)};
+ const put=(c,r)=>{const f=S.k/r.k,q=f*d/(r.dd||d);x.drawImage(c,(S.tx-f*r.tx+S.k*(l.pos.x-r.px))*d,(S.ty-f*r.ty+S.k*(l.pos.y-r.py))*d,c.width*q,c.height*q)};
  if(l.pxy&&l.pr)put(l.pxy,l.pr);(l.hist||[]).forEach(h=>put(h.c,h.r));put(l.raw,l.r);
  if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over'}}
 function comp(l){if(l.cq)return;l.cq=requestAnimationFrame(()=>{l.cq=0;compNow(l)})}
 function idleProxy(l){if(PF.cache===false)return;clearTimeout(l.pt);
- l.pt=setTimeout(async()=>{if(l.done!==l.tok||G)return;const t=l.tok,sg=l.sig,d=dpr(),a=S.L[0].src,w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
+ l.pt=setTimeout(async()=>{if(l.done!==l.tok)return;const t=l.tok,sg=l.sig,d=dpr(),dd=MOB?Math.min(d,1.5):d,a=S.L[0].src,w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
   const ok=()=>t===l.tok&&sg===l.sig&&!G;
-  if(!(l.pxy&&l.psig===sg)){const k=Math.min(w/a.w,h/a.h)*.94,tx=(w-a.w*k)/2,ty=(h-a.h*k)/2,c=document.createElement('canvas');c.width=Math.round(w*d);c.height=Math.round(h*d);
-   l.px=true;try{await draw(l,c,k,tx,ty,d,false)}catch(e){l.px=false;return}l.px=false;
-   if(!ok())return;l.pxy=c;l.pr={k,tx,ty,px:l.pos.x,py:l.pos.y};l.psig=sg;comp(l)}
-  if(PF.pre===false||!l.r)return;
-  /* neighbouring screens, rendered one at a time on the same pixel grid; stops as soon as the view moves */
-  const r0=l.r,x0=S.tx,y0=S.ty,x1=x0+a.w*S.k,y1=y0+a.h*S.k,W=Math.round(w*d),H=Math.round(h*d),lim=CLIM(W,H);
+  if(!(l.pxy&&l.psig===sg)){const k=Math.min(w/a.w,h/a.h)*.94,tx=(w-a.w*k)/2,ty=(h-a.h*k)/2,pp={x:l.pos.x,y:l.pos.y},c=document.createElement('canvas');c.width=Math.round(w*dd);c.height=Math.round(h*dd);
+   try{await draw(Object.create(l),c,k,tx,ty,dd,false)}catch(e){rel(c);return}
+   if(sg!==l.sig){rel(c);return}rel(l.pxy);l.pxy=c;l.pr={k,tx,ty,px:pp.x,py:pp.y,dd};l.psig=sg;comp(l)}
+  if(PF.pre===false||!l.r||(MOB&&S.cmp)||!ok())return;
+  /* neighbouring screens, rendered one at a time (lower density on phones); stops as soon as the view moves */
+  const r0=l.r,x0=S.tx,y0=S.ty,x1=x0+a.w*S.k,y1=y0+a.h*S.k,W=Math.round(w*dd),H=Math.round(h*dd),lim=CLIM(W,H),nl=l.nl=Object.create(l);
   for(const[dx,dy]of[[0,h],[0,-h],[w,0],[-w,0]].sort((a,b)=>(-b[0]*LD.dx-b[1]*LD.dy)-(-a[0]*LD.dx-a[1]*LD.dy))){
    if(!ok()||l.r!==r0)return;
    if(!(dx<x1&&dx+w>x0&&dy<y1&&dy+h>y0))continue;
    const nt=r0.tx-dx,nu=r0.ty-dy;
    if((l.hist||[]).some(q=>Math.abs(q.r.k/r0.k-1)<.005&&Math.abs(q.r.tx-nt)<1&&Math.abs(q.r.ty-nu)<1))continue;
    const c=document.createElement('canvas');c.width=W;c.height=H;
-   l.px=true;try{await draw(l,c,r0.k,nt,nu,d,false)}catch(e){l.px=false;return}l.px=false;
-   if(!ok()||l.r!==r0)return;
-   l.hist=[...(l.hist||[]),{c,r:{k:r0.k,tx:nt,ty:nu,px:r0.px,py:r0.py}}].slice(-lim);comp(l)}},1200)}
+   l.px=true;try{await draw(nl,c,r0.k,nt,nu,dd,false)}catch(e){l.px=false;rel(c);return}l.px=false;
+   if(!ok()||l.r!==r0){rel(c);return}
+   l.hist=[...(l.hist||[]),{c,r:{k:r0.k,tx:nt,ty:nu,px:r0.px,py:r0.py,dd}}];trimHist(l,r0.k,lim,null);comp(l)}},l.pxy&&l.psig===l.sig?1200:250)}
 function paintL(l){comp(l)}
 function paintL0(l){const x=l.cv.getContext('2d');x.globalCompositeOperation='source-over';x.drawImage(l.raw,0,0);if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,l.raw.width,l.raw.height);x.globalCompositeOperation='source-over'}}
 function place(l){const r=l.r;const ab=S.bk&&S.bk.m==='ab';l.cv.style.display=ab?(l.i===S.bk.ph?'':'none'):(l.vis&&!(S.cmp&&S.dok)?'':'none');l.cv.style.opacity=l.op;if(!r)return;const f=S.k/r.k;
  l.cv.style.transform='none';comp(l)}
-let vt;const viewChanged=()=>{if(LD.x!==null){if(S.tx!==LD.x)LD.dx=S.tx-LD.x;if(S.ty!==LD.y)LD.dy=S.ty-LD.y}LD.x=S.tx;LD.y=S.ty;S.L.forEach(l=>{clearTimeout(l.pt);if(l.px&&l.task)l.task.cancel()});S.L.forEach(place);placeD();ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),Math.min(450,Math.max(120,1.5*Math.max(0,...S.L.map(l=>l.ms||0)))))};
+let vt;const viewChanged=()=>{if(LD.x!==null){if(S.tx!==LD.x)LD.dx=S.tx-LD.x;if(S.ty!==LD.y)LD.dy=S.ty-LD.y}LD.x=S.tx;LD.y=S.ty;S.L.forEach(l=>{clearTimeout(l.pt);if(l.px&&l.nl&&l.nl.task)l.nl.task.cancel()});S.L.forEach(place);placeD();ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),Math.min(450,Math.max(120,1.5*Math.max(0,...S.L.map(l=>l.ms||0)))))};
 const all=()=>{S.L.forEach(refresh);ov();ui()};
 function size(){const d=dpr(),c=$('#ov');c.width=stage.clientWidth*d;c.height=stage.clientHeight*d;if(S.L.length)all()}
 new ResizeObserver(()=>{if(!$('#work').hidden)size()}).observe(stage);
@@ -369,8 +373,8 @@ function diffMasks(ca,cb,s){const W=ca.width,H=ca.height,n=W*H,dA=dark(ca),dB=da
  conflict(A,B,Ad,Bd,R,D,W,H,Math.min(18,Math.max(5,r(14))));
  return{W,H,dA,dB,R,D}}
 /* keeps the original anti-aliasing (coverage), so lines stay as thin and crisp as in the plain overlay */
-function diffPaint(m){const{W,H,dA,dB,R,D}=m,out=new ImageData(W,H),o=out.data,c1=rgb(S.L[0].col),c2=rgb(S.L[1].col),c3=rgb(S.cc),hid=S.bk&&S.bk.m==='diff'&&S.bk.ph===1;
- for(let i=0,j=0;i<R.length;i+=1,j+=4){let c,v;if(R[i]||D[i]){if(hid){o[j]=o[j+1]=o[j+2]=255;o[j+3]=255;continue}if(R[i]){c=c1;v=dA[i]}else{c=c2;v=dB[i]}}else{c=c3;v=dA[i]>dB[i]?dA[i]:dB[i];if(v<=20)v=0}
+function diffPaint(m){const{W,H,dA,dB,R,D}=m,out=new ImageData(W,H),o=out.data,c1=rgb(S.L[0].col),c2=rgb(S.L[1].col),c3=rgb(S.cc),hid=S.bk&&S.bk.m==='diff'&&S.bk.ph===1,bm=S.bk&&S.bk.m==='swap'?S.bk.ph:-1;
+ for(let i=0,j=0;i<R.length;i+=1,j+=4){let c,v;if(R[i]||D[i]){if(hid||(R[i]?bm===1:bm===0)){o[j]=o[j+1]=o[j+2]=255;o[j+3]=255;continue}if(R[i]){c=c1;v=dA[i]}else{c=c2;v=dB[i]}}else{c=c3;v=dA[i]>dB[i]?dA[i]:dB[i];if(v<=20)v=0}
   v=Math.min(255,v*1.35)/255;o[j]=255-(255-c[0])*v;o[j+1]=255-(255-c[1])*v;o[j+2]=255-(255-c[2])*v;o[j+3]=255}
  const c=document.createElement('canvas');c.width=W;c.height=H;c.getContext('2d').putImageData(out,0,0);return c}
 function placeD(){const r=S.dr;if(!r)return;const f=S.k/r.k;$('#dc').style.transform=`translate(${S.tx-f*r.tx}px,${S.ty-f*r.ty}px) scale(${f})`}
@@ -437,7 +441,7 @@ const png=async full=>{const c=await shot(full);if(!c)return;c.toBlob(b=>{const 
 $('#e1').onclick=()=>png(true);$('#e2').onclick=()=>png(false);
 $('#e3').onclick=async()=>{const c=await shot(true);if(!c)return;const im=new Image();im.src=c.toDataURL('image/png');$('#pa').innerHTML='';$('#pa').appendChild(im);await im.decode();print();setTimeout(()=>$('#pa').innerHTML='',1500)};
 /* ---------- version / update / persistence / diagnostics ---------- */
-const VER='2.9.0';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
+const VER='2.9.1';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
 const DBo=()=>new Promise((res,rej)=>{const r=indexedDB.open('matchplan',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 async function idb(m,k,v){const d=await DBo();return new Promise((res,rej)=>{const t=d.transaction('p',m==='get'?'readonly':'readwrite'),st=t.objectStore('p'),q=m==='get'?st.get(k):m==='del'?st.delete(k):st.put(v,k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
 const snap=()=>({files:F.map((o,i)=>({file:o.file,page:S.L[i].src.pn})),layers:S.L.map(l=>({pos:l.pos,rot:l.rot,sx:l.sx,fx:l.fx,fy:l.fy,crop:l.crop,vis:l.vis,col:l.col,op:l.op})),view:{k:S.k,tx:S.tx,ty:S.ty},act:S.act,cmp:S.cmp,ann:S.ann,tint:S.tint,opt:{tol:S.tol,gap:S.gap,mn:S.mn,cc:S.cc,sc:S.sc},cid:S.cid,t:Date.now()});
@@ -484,11 +488,11 @@ $('#dg').onclick=async()=>{$('#dg').textContent='בודק…';await diagnose();$
 $('#cl').onclick=()=>{window.__L.length=0;DIAG='';refreshReport()};
 $('#cp').onclick=async()=>{refreshReport();const r=$('#rep');try{await navigator.clipboard.writeText(r.value)}catch(e){r.select();document.execCommand('copy')}$('#cm').textContent='הדוח הועתק – הדבק אותו בשיחה ✔'};
 /* ---------- blink: (1) only the differences blink, grey stays; (2) one plan at a time ---------- */
-function bLabels(){const d=$('#bm').value==='diff';$('#b1l').textContent=d?'זמן הצגת ההבדלים':'זמן הצגת התוכנית הקודמת';$('#b2l').textContent=d?'זמן הסתרת ההבדלים':'זמן הצגת התוכנית החדשה'}
+function bLabels(){const v=$('#bm').value;$('#b1l').textContent=v==='diff'?'זמן הצגת ההבדלים':'זמן הצגת התוכנית הקודמת';$('#b2l').textContent=v==='diff'?'זמן הסתרת ההבדלים':'זמן הצגת התוכנית החדשה'}
 function blinkStart(){blinkStop();const m=$('#bm').value;S.bk={m,ph:0};
- if(m==='diff'&&!S.cmp){S.cmp=true;$('#cmp').checked=true;$('#cmpopts').hidden=false;S.dok=false;schedDiff()}
+ if(m!=='ab'&&!S.cmp){S.cmp=true;$('#cmp').checked=true;$('#cmpopts').hidden=false;S.dok=false;schedDiff()}
  $('#bl').classList.add('on');$('#bgo').textContent='עצור הבהוב';tick()}
-function tick(){if(!S.bk)return;if(S.bk.m==='diff')repaintDiff();showMode();S.bt=setTimeout(()=>{if(!S.bk)return;S.bk.ph^=1;tick()},(S.bk.ph?S.t2:S.t1)*1000)}
+function tick(){if(!S.bk)return;if(S.bk.m!=='ab')repaintDiff();showMode();S.bt=setTimeout(()=>{if(!S.bk)return;S.bk.ph^=1;tick()},(S.bk.ph?S.t2:S.t1)*1000)}
 function blinkStop(){clearTimeout(S.bt);const was=S.bk;S.bk=null;$('#bl').classList.remove('on');$('#bgo').textContent='התחל הבהוב';if(was){repaintDiff();showMode()}}
 $('#bgo').onclick=$('#bl').onclick=()=>S.bk?blinkStop():blinkStart();
 $('#bm').onchange=()=>{bLabels();if(S.bk)blinkStart()};
