@@ -345,6 +345,17 @@ function despeck(m,W,H,minPx){if(minPx<2)return m;const dm=win(m,W,H,2),seen=new
 function dark(c){const W=c.width,H=c.height,d=c.getContext('2d').getImageData(0,0,W,H).data,m=new Uint8Array(W*H);for(let i=0,j=0;j<m.length;i+=4,j++)m[j]=255-((d[i]+d[i+1]+d[i+2])/3|0);return m}
 function bin(d){const m=new Uint8Array(d.length);for(let i=0;i<d.length;i++)m[i]=d[i]>20?1:0;return m}
 function grow(seed,mask,W,H,n){let c=seed;for(let i=0;i<Math.min(n,12);i++){const d=win(c,W,H,1),o=new Uint8Array(W*H);for(let k=0;k<o.length;k++)o[k]=d[k]&&mask[k]?1:0;c=o}return c}
+/* where different shapes overlap (old circle under a new line or text) the shared pixels are not "the same drawing":
+   a pixel counts as changed when, around it, both drawings have a lot of ink the other one does not have */
+function boxsum(m,W,H,r){const t=new Uint16Array(W*H),o=new Uint16Array(W*H);
+ for(let y=0;y<H;y++){const b=y*W;let c=0;for(let i=0;i<=r&&i<W;i++)c+=m[b+i];for(let x=0;x<W;x++){t[b+x]=c;const a=x+r+1,q=x-r;if(a<W)c+=m[b+a];if(q>=0)c-=m[b+q]}}
+ const cn=new Int32Array(W);for(let y=0;y<=r&&y<H;y++)for(let x=0;x<W;x++)cn[x]+=t[y*W+x];
+ for(let y=0;y<H;y++){for(let x=0;x<W;x++)o[y*W+x]=cn[x];const a=y+r+1,q=y-r;for(let x=0;x<W;x++){if(a<H)cn[x]+=t[a*W+x];if(q>=0)cn[x]-=t[q*W+x]}}
+ return o}
+function conflict(A,B,Ad,Bd,R,D,W,H,rho){const n=W*H,UA=new Uint8Array(n),UB=new Uint8Array(n);
+ for(let i=0;i<n;i++){UA[i]=A[i]&&!Bd[i]?1:0;UB[i]=B[i]&&!Ad[i]?1:0}
+ const ua=boxsum(UA,W,H,rho),ub=boxsum(UB,W,H,rho),ta=boxsum(A,W,H,rho),tb=boxsum(B,W,H,rho);
+ for(let i=0;i<n;i++){if(R[i]||D[i]||!(A[i]||B[i]))continue;if(ua[i]*4>ta[i]&&ub[i]*4>tb[i]){if(A[i]&&!B[i])R[i]=1;else D[i]=1}}}
 /* s = pixels per sheet unit; tolerance / gap / min-size are in sheet units so they behave the same at any zoom */
 function diffMasks(ca,cb,s){const W=ca.width,H=ca.height,n=W*H,dA=dark(ca),dB=dark(cb),A=bin(dA),B=bin(dB),f=28.346/(S.sc||100),r=v=>Math.min(30,Math.round(v*f*s)),g=Math.ceil(r(S.gap)/2),t=Math.max(S.tol>0?1:0,r(S.tol));
  let Ac=A,Bc=B;if(g>0){Ac=win(win(A,W,H,g),W,H,g,1);Bc=win(win(B,W,H,g),W,H,g,1)}
@@ -355,6 +366,7 @@ function diffMasks(ca,cb,s){const W=ca.width,H=ca.height,n=W*H,dA=dark(ca),dB=da
  if(t>1){const A1=win(A,W,H,1),B1=win(B,W,H,1),MR=new Uint8Array(n),MD=new Uint8Array(n);for(let i=0;i<n;i++){MR[i]=A[i]&&!B1[i]?1:0;MD[i]=B[i]&&!A1[i]?1:0}R=grow(R,MR,W,H,t);D=grow(D,MD,W,H,t)}
  const bridge=(M,Src)=>{const o=M.slice();for(let y=3;y<H-3;y++)for(let x=3;x<W-3;x++){const i=y*W+x;if(M[i]||!Src[i])continue;if(((M[i-1]||M[i-2]||M[i-3])&&(M[i+1]||M[i+2]||M[i+3]))||((M[i-W]||M[i-2*W]||M[i-3*W])&&(M[i+W]||M[i+2*W]||M[i+3*W])))o[i]=1}return o};
  R=bridge(R,A);D=bridge(D,B);
+ conflict(A,B,Ad,Bd,R,D,W,H,Math.min(18,Math.max(5,r(14))));
  return{W,H,dA,dB,R,D}}
 /* keeps the original anti-aliasing (coverage), so lines stay as thin and crisp as in the plain overlay */
 function diffPaint(m){const{W,H,dA,dB,R,D}=m,out=new ImageData(W,H),o=out.data,c1=rgb(S.L[0].col),c2=rgb(S.L[1].col),c3=rgb(S.cc),hid=S.bk&&S.bk.m==='diff'&&S.bk.ph===1;
@@ -425,7 +437,7 @@ const png=async full=>{const c=await shot(full);if(!c)return;c.toBlob(b=>{const 
 $('#e1').onclick=()=>png(true);$('#e2').onclick=()=>png(false);
 $('#e3').onclick=async()=>{const c=await shot(true);if(!c)return;const im=new Image();im.src=c.toDataURL('image/png');$('#pa').innerHTML='';$('#pa').appendChild(im);await im.decode();print();setTimeout(()=>$('#pa').innerHTML='',1500)};
 /* ---------- version / update / persistence / diagnostics ---------- */
-const VER='2.8.0';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
+const VER='2.9.0';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
 const DBo=()=>new Promise((res,rej)=>{const r=indexedDB.open('matchplan',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 async function idb(m,k,v){const d=await DBo();return new Promise((res,rej)=>{const t=d.transaction('p',m==='get'?'readonly':'readwrite'),st=t.objectStore('p'),q=m==='get'?st.get(k):m==='del'?st.delete(k):st.put(v,k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
 const snap=()=>({files:F.map((o,i)=>({file:o.file,page:S.L[i].src.pn})),layers:S.L.map(l=>({pos:l.pos,rot:l.rot,sx:l.sx,fx:l.fx,fy:l.fy,crop:l.crop,vis:l.vis,col:l.col,op:l.op})),view:{k:S.k,tx:S.tx,ty:S.ty},act:S.act,cmp:S.cmp,ann:S.ann,tint:S.tint,opt:{tol:S.tol,gap:S.gap,mn:S.mn,cc:S.cc,sc:S.sc},cid:S.cid,t:Date.now()});
