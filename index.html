@@ -69,6 +69,13 @@ input[type=color]{width:38px;height:32px;padding:2px;border:1px solid var(--ln);
 .li{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--ln);border-radius:12px;background:#fff;flex-wrap:wrap}.li:hover{background:#f7f9fb}.li .nm{flex:1;cursor:pointer;min-width:140px}.li small{color:var(--mut);display:block;overflow:hidden;text-overflow:ellipsis}.li button{min-height:30px;padding:0 9px;font-size:13px}
 #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;z-index:60;font-size:14px}
 #upd{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:50;background:var(--ink);color:#fff;padding:10px 14px;border-radius:14px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 30px #0f223860;max-width:94%}#upd button{min-height:32px}#upd button.pri{background:var(--am)!important;color:#1a1300!important}
+html,body{overflow-x:hidden;max-width:100%}#work{width:100%;overflow:hidden}#top{min-width:0;flex-wrap:nowrap}#top>button{flex:none}
+.dh{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:-20px;background:#fff;margin:-20px -20px 0;padding:14px 20px;z-index:2;border-bottom:1px solid var(--ln)}.dh h3{margin:0}
+button.x{min-width:40px;min-height:40px;padding:0;border-radius:50%;font-size:18px}#sh{display:none}
+@media(max-width:800px){.brand{display:none}#top{padding:6px 8px;gap:6px}#top button{min-width:40px;padding:0 8px}#top #back{margin-inline-end:auto}#top #sbt{background:#ffffff2e}
+#hint{font-size:11px;padding:5px 12px;border-radius:14px;max-width:84%;top:6px}
+#side{height:min(58dvh,520px)}#sh{display:flex;align-items:center;justify-content:space-between;position:sticky;top:-12px;margin:-12px -12px 0;padding:10px 14px;background:var(--bg);z-index:2;font-weight:700}
+#dlg>div,#lib>div{max-height:94dvh;border-radius:18px}}
 </style></head><body>
 
 <section id="home"><button class="gear" id="hg">⚙ הגדרות</button>
@@ -85,7 +92,7 @@ input[type=color]{width:38px;height:32px;padding:2px;border:1px solid var(--ln);
 <div id="body">
 <div id="stage"><canvas id="dc" hidden></canvas><canvas id="ov"></canvas><div id="hint"></div>
 <div id="tb"></div></div>
-<aside id="side"><section class="box"><label class="row"><input type="checkbox" id="cmp"><b>מצב השוואה – שלושה צבעים</b></label>
+<aside id="side"><div id="sh"><span>פאנל</span><button class="x" id="sx" title="סגור">✕</button></div><section class="box"><label class="row"><input type="checkbox" id="cmp"><b>מצב השוואה – שלושה צבעים</b></label>
 <div id="cmpopts" hidden style="display:flex;flex-direction:column;gap:14px">
 <p class="sec">"רק בקודמת" ו"רק בחדשה" צבועים בצבעי הכרטיסים שלמטה. כאן בוחרים את צבע הקווים הזהים.</p>
 <label class="row">קווים זהים <input type="color" id="cc" value="#9ca3af"></label>
@@ -104,7 +111,7 @@ input[type=color]{width:38px;height:32px;padding:2px;border:1px solid var(--ln);
 <div class="exp"><button id="e1">PNG גיליון מלא</button><button id="e2">PNG התצוגה הנוכחית</button><button id="e3">הדפסה</button></div>
 </aside></div></section>
 <div id="upd" hidden><span id="ut"></span><button id="ub" class="pri">עדכן עכשיו</button><button id="uc">אחר כך</button></div>
-<div id="dlg" hidden><div><h3>הגדרות</h3>
+<div id="dlg" hidden><div><div class="dh"><h3>הגדרות</h3><button class="x" id="dxx" title="סגור">✕</button></div>
 <div class="box"><b>צבעי ברירת מחדל</b><p class="sec">חלים על כל השוואה חדשה. השוואות שמורות ושחזור פרויקט שומרים את הצבעים שלהם.</p>
 <div class="pfg"><label class="row">תוכנית קודמת <input type="color" id="pf0"></label><label class="row">תוכנית חדשה <input type="color" id="pf1"></label><label class="row">קווים זהים <input type="color" id="pfc"></label><label class="row">צבע סימון <input type="color" id="pfa"></label></div>
 <label class="row"><input type="checkbox" id="pfk"> רינדור מהיר: מטמון ותמונת רקע בזמן תנועה</label>
@@ -117,7 +124,7 @@ input[type=color]{width:38px;height:32px;padding:2px;border:1px solid var(--ln);
 <div class="row"><button id="dg">הרץ בדיקה</button><button id="cp" class="pri" style="padding:8px 14px;font-size:14px">העתק דוח</button><button id="cl">נקה יומן</button></div>
 <textarea id="rep" readonly></textarea><div id="cm" class="sec"></div></div>
 <button id="dx">סגור</button></div></div>
-<div id="lib" hidden><div><h3 id="lbt"></h3><div class="row" id="lbc"></div><div id="lbl" style="display:flex;flex-direction:column;gap:8px"></div><div class="row" id="lba"></div><button id="lbx">סגור</button></div></div><div id="toast" hidden></div>
+<div id="lib" hidden><div><div class="dh"><h3 id="lbt"></h3><button class="x" id="lbxx" title="סגור">✕</button></div><div class="row" id="lbc"></div><div id="lbl" style="display:flex;flex-direction:column;gap:8px"></div><div class="row" id="lba"></div><button id="lbx">סגור</button></div></div><div id="toast" hidden></div>
 <div id="busy" hidden>מעבד…</div><div id="pa"></div>
 
 <script type="module">
@@ -170,13 +177,14 @@ async function draw(l,c,k,tx,ty,d,tint){const x=c.getContext('2d'),m=M(l,k,tx,ty
 async function refresh(l){const t=++l.tok,t0=performance.now();l.task&&l.task.cancel();const d=dpr(),c=document.createElement('canvas'),W=Math.round(stage.clientWidth*d),H=Math.round(stage.clientHeight*d);
  if(!W||!H)return;c.width=W;c.height=H;const k=S.k,tx=S.tx,ty=S.ty,px=l.pos.x,py=l.pos.y;
  try{await draw(l,c,k,tx,ty,d,false)}catch(e){if(!/cancel/i.test(String(e&&(e.name||'')+(e.message||''))))log('ציור '+l.src.name,e);return}
- if(t!==l.tok)return;const sg=sigOf(l),ch=l.sig!==sg,lim=PF.cache===false||MOB?0:(PF.pre!==false?(W*H>4e6?2:5):(W*H>4e6?1:3));
+ if(t!==l.tok)return;const sg=sigOf(l),ch=l.sig!==sg,lim=CLIM(W,H);
  if(ch){l.sig=sg;l.hist=[];l.pxy=null}
  else if(lim&&l.raw&&l.r)(l.hist=l.hist||[]).push({c:l.raw,r:l.r});
  l.hist=lim?(l.hist||[]).filter(h=>Math.abs(h.r.k/k-1)<.005).slice(-lim):[];
  l.raw=c;l.done=t;l.ms=performance.now()-t0;l.r={k,tx,ty,px,py};compNow(l);place(l);schedDiff();saveS();idleProxy(l)}
 /* ---------- fast display: low-res page underlay + last sharp renders, composited on one canvas ---------- */
-const MOB=matchMedia('(max-width:800px)').matches||navigator.maxTouchPoints>0;
+let LD={x:null,y:null,dx:0,dy:0};const MOB=matchMedia('(max-width:800px)').matches||navigator.maxTouchPoints>0;
+const CLIM=(W,H)=>PF.cache===false?0:(W*H>4e6?(PF.pre!==false?2:1):MOB?(PF.pre!==false?4:2):(PF.pre!==false?5:3));
 const sigOf=l=>[l.src.name,l.rot,l.sx,l.fx,l.fy,l.crop].join('|');
 function compNow(l){if(!l.raw||!l.r)return;const d=dpr(),W=Math.round(stage.clientWidth*d),H=Math.round(stage.clientHeight*d);if(!W||!H)return;
  if(l.cv.width!==W||l.cv.height!==H){l.cv.width=W;l.cv.height=H}
@@ -185,7 +193,7 @@ function compNow(l){if(!l.raw||!l.r)return;const d=dpr(),W=Math.round(stage.clie
  if(l.pxy&&l.pr)put(l.pxy,l.pr);(l.hist||[]).forEach(h=>put(h.c,h.r));put(l.raw,l.r);
  if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over'}}
 function comp(l){if(l.cq)return;l.cq=requestAnimationFrame(()=>{l.cq=0;compNow(l)})}
-function idleProxy(l){if(PF.cache===false||MOB)return;clearTimeout(l.pt);
+function idleProxy(l){if(PF.cache===false)return;clearTimeout(l.pt);
  l.pt=setTimeout(async()=>{if(l.done!==l.tok||G)return;const t=l.tok,sg=l.sig,d=dpr(),a=S.L[0].src,w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
   const ok=()=>t===l.tok&&sg===l.sig&&!G;
   if(!(l.pxy&&l.psig===sg)){const k=Math.min(w/a.w,h/a.h)*.94,tx=(w-a.w*k)/2,ty=(h-a.h*k)/2,c=document.createElement('canvas');c.width=Math.round(w*d);c.height=Math.round(h*d);
@@ -193,8 +201,8 @@ function idleProxy(l){if(PF.cache===false||MOB)return;clearTimeout(l.pt);
    if(!ok())return;l.pxy=c;l.pr={k,tx,ty,px:l.pos.x,py:l.pos.y};l.psig=sg;comp(l)}
   if(PF.pre===false||!l.r)return;
   /* neighbouring screens, rendered one at a time on the same pixel grid; stops as soon as the view moves */
-  const r0=l.r,x0=S.tx,y0=S.ty,x1=x0+a.w*S.k,y1=y0+a.h*S.k,W=Math.round(w*d),H=Math.round(h*d),lim=W*H>4e6?2:5;
-  for(const[dx,dy]of[[w,0],[-w,0],[0,h],[0,-h]]){
+  const r0=l.r,x0=S.tx,y0=S.ty,x1=x0+a.w*S.k,y1=y0+a.h*S.k,W=Math.round(w*d),H=Math.round(h*d),lim=CLIM(W,H);
+  for(const[dx,dy]of[[0,h],[0,-h],[w,0],[-w,0]].sort((a,b)=>(-b[0]*LD.dx-b[1]*LD.dy)-(-a[0]*LD.dx-a[1]*LD.dy))){
    if(!ok()||l.r!==r0)return;
    if(!(dx<x1&&dx+w>x0&&dy<y1&&dy+h>y0))continue;
    const nt=r0.tx-dx,nu=r0.ty-dy;
@@ -207,7 +215,7 @@ function paintL(l){comp(l)}
 function paintL0(l){const x=l.cv.getContext('2d');x.globalCompositeOperation='source-over';x.drawImage(l.raw,0,0);if(S.tint){x.globalCompositeOperation='lighten';x.fillStyle=l.col;x.fillRect(0,0,l.raw.width,l.raw.height);x.globalCompositeOperation='source-over'}}
 function place(l){const r=l.r;const ab=S.bk&&S.bk.m==='ab';l.cv.style.display=ab?(l.i===S.bk.ph?'':'none'):(l.vis&&!(S.cmp&&S.dok)?'':'none');l.cv.style.opacity=l.op;if(!r)return;const f=S.k/r.k;
  l.cv.style.transform='none';comp(l)}
-let vt;const viewChanged=()=>{S.L.forEach(l=>{clearTimeout(l.pt);if(l.px&&l.task)l.task.cancel()});S.L.forEach(place);placeD();ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),Math.min(450,Math.max(120,1.5*Math.max(0,...S.L.map(l=>l.ms||0)))))};
+let vt;const viewChanged=()=>{if(LD.x!==null){if(S.tx!==LD.x)LD.dx=S.tx-LD.x;if(S.ty!==LD.y)LD.dy=S.ty-LD.y}LD.x=S.tx;LD.y=S.ty;S.L.forEach(l=>{clearTimeout(l.pt);if(l.px&&l.task)l.task.cancel()});S.L.forEach(place);placeD();ov();clearTimeout(vt);vt=setTimeout(()=>S.L.forEach(refresh),Math.min(450,Math.max(120,1.5*Math.max(0,...S.L.map(l=>l.ms||0)))))};
 const all=()=>{S.L.forEach(refresh);ov();ui()};
 function size(){const d=dpr(),c=$('#ov');c.width=stage.clientWidth*d;c.height=stage.clientHeight*d;if(S.L.length)all()}
 new ResizeObserver(()=>{if(!$('#work').hidden)size()}).observe(stage);
@@ -308,6 +316,7 @@ $('#un').onclick=undo;$('#re').onclick=redo;
 $$('#tb [data-t]').forEach(b=>b.onclick=()=>setTool(b.dataset.t));
 $('#fit').onclick=fit;$('#zi').onclick=()=>zoomAt(stage.clientWidth/2,stage.clientHeight/2,1.5);$('#zo').onclick=()=>zoomAt(stage.clientWidth/2,stage.clientHeight/2,1/1.5);
 $('#sbt').innerHTML=IC('<path d="M12 3 2 8l10 5 10-5z"/><path d="m2 13 10 5 10-5M2 17.5 12 22l10-4.5"/>')+'<span>פאנל</span>';
+$('#sx').onclick=()=>$('#side').classList.remove('open');$('#dxx').onclick=()=>$('#dlg').hidden=true;$('#lbxx').onclick=()=>$('#lib').hidden=true;
 $('#sbt').onclick=()=>{$('#side').classList.toggle(matchMedia('(max-width:800px)').matches?'open':'hide')};
 function addPt(w){const l=S.L[S.act],p={x:w[0],y:w[1]};S.pf.push(p);
  if(S.ps===1){const a=S.pf[0];l.pos.x+=a.x-p.x;l.pos.y+=a.y-p.y;S.pf=[a];refresh(l);commit()}
@@ -416,7 +425,7 @@ const png=async full=>{const c=await shot(full);if(!c)return;c.toBlob(b=>{const 
 $('#e1').onclick=()=>png(true);$('#e2').onclick=()=>png(false);
 $('#e3').onclick=async()=>{const c=await shot(true);if(!c)return;const im=new Image();im.src=c.toDataURL('image/png');$('#pa').innerHTML='';$('#pa').appendChild(im);await im.decode();print();setTimeout(()=>$('#pa').innerHTML='',1500)};
 /* ---------- version / update / persistence / diagnostics ---------- */
-const VER='2.7.0';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
+const VER='2.8.0';let latest=null,notes='',dism=null,lastChk=0,LAST=null,DIAG='';
 const DBo=()=>new Promise((res,rej)=>{const r=indexedDB.open('matchplan',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 async function idb(m,k,v){const d=await DBo();return new Promise((res,rej)=>{const t=d.transaction('p',m==='get'?'readonly':'readwrite'),st=t.objectStore('p'),q=m==='get'?st.get(k):m==='del'?st.delete(k):st.put(v,k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
 const snap=()=>({files:F.map((o,i)=>({file:o.file,page:S.L[i].src.pn})),layers:S.L.map(l=>({pos:l.pos,rot:l.rot,sx:l.sx,fx:l.fx,fy:l.fy,crop:l.crop,vis:l.vis,col:l.col,op:l.op})),view:{k:S.k,tx:S.tx,ty:S.ty},act:S.act,cmp:S.cmp,ann:S.ann,tint:S.tint,opt:{tol:S.tol,gap:S.gap,mn:S.mn,cc:S.cc,sc:S.sc},cid:S.cid,t:Date.now()});
